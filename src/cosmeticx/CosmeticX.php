@@ -30,8 +30,7 @@ use pocketmine\utils\SingletonTrait;
 class CosmeticX extends PluginBase{
 	use SingletonTrait;
 
-
-	const         IS_DEVELOPMENT = true;
+	const         IS_DEVELOPMENT = false;
 	private const URL            = "https://cosmetic-x.be";
 	const         URL_API        = self::URL . "/api";
 	private string $token = "";
