@@ -24,6 +24,8 @@ class CosmeticManager{
 
 
 	/** @var Cosmetic[] */
+	private array $publicCosmetics = [];
+	/** @var Cosmetic[] */
 	private array $cosmetics = [];
 	/** @var Skin[] */
 	private array $localCosmetics = [];
@@ -34,6 +36,14 @@ class CosmeticManager{
 	 */
 	function resetLocalCosmetics(): void{
 		$this->localCosmetics = [];
+	}
+
+	/**
+	 * Function resetPublicCosmetics
+	 * @return void
+	 */
+	function resetPublicCosmetics(): void{
+		$this->cosmetics = [];
 	}
 
 	/**
@@ -60,21 +70,39 @@ class CosmeticManager{
 	 * @param string $id
 	 * @return void
 	 */
-	function registerCosmetic(string $name, string $id): void{
-		$this->cosmetics[$name] = new Cosmetic($name, $id);
+	function registerPublicCosmetics(string $name, string $id): void{
+		$this->publicCosmetics[$name] = new Cosmetic($name, $id, Cosmetic::PUBLIC);
+	}
+
+	/**
+	 * Function registerSlotCosmetic
+	 * @param string $name
+	 * @param string $id
+	 * @return void
+	 */
+	function registerSlotCosmetic(string $name, string $id): void{
+		$this->cosmetics[$name] = new Cosmetic($name, $id, Cosmetic::SLOT);
 	}
 
 	/**
 	 * Function getLocalCosmetics
-	 * @return array
+	 * @return Skin[]
 	 */
 	function getLocalCosmetics(): array{
 		return $this->localCosmetics;
 	}
 
 	/**
+	 * Function getPublicCosmetics
+	 * @return Cosmetic[]
+	 */
+	public function getPublicCosmetics(): array{
+		return $this->publicCosmetics;
+	}
+
+	/**
 	 * Function getCosmetics
-	 * @return array
+	 * @return Cosmetic[]
 	 */
 	function getCosmetics(): array{
 		return $this->cosmetics;

@@ -18,18 +18,21 @@ use Ramsey\Uuid\Uuid;
  * @project PocketMine-Client
  */
 class Cosmetic{
+	const PUBLIC = 0;
+	const SLOT   = 1;
 	private string $name;
-	private bool $local;
+	private bool $public;
 	private string $id;
 
 	/**
 	 * Cosmetic constructor.
 	 * @param string $name
 	 * @param null|string $id
+	 * @param int $type
 	 */
-	public function __construct(string $name, string $id = null){
+	public function __construct(string $name, string $id = null, int $type = self::PUBLIC){
 		$this->name = $name;
-		$this->local = is_null($id);
+		$this->public = $type == self::PUBLIC;
 		$this->id = $id ?? Uuid::uuid4()->toString();
 	}
 
@@ -42,11 +45,19 @@ class Cosmetic{
 	}
 
 	/**
-	 * Function getLocal
+	 * Function isPublic
 	 * @return bool
 	 */
-	public function isLocal(): bool{
-		return $this->local;
+	public function isPublic(): bool{
+		return $this->public;
+	}
+
+	/**
+	 * Function isSlot
+	 * @return bool
+	 */
+	public function isSlot(): bool{
+		return !$this->public;
 	}
 
 	/**
