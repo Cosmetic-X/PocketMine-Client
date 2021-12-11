@@ -1,0 +1,10 @@
+name: "CosmeticX"
+authors:
+  - "BauboLP"
+  - "xxAROX"
+website: "https://github.com/xxAROX/"
+version: "0.1-alpha"
+description: "Cosmetic-X client for PocketMine-4"
+
+api: [ "4.0.0" ]
+main: cosmeticx\CosmeticX

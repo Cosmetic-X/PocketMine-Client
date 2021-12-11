@@ -1,7 +1,6 @@
 # Cosmetic-X
 
-### CosmeticManager
-#### register own cosmetic
+### Register own Cosmetic
 ```php
 $skin = new \pocketmine\entity\Skin($skinUuid, $skinData, $capeData, $geometryName, $geometryData);
 \cosmeticx\CosmeticManager::getInstance()->registerLocalCosmetic("Example", $skin);

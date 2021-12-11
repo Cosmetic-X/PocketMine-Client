@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Client" pattern="file[PocketMine-Client]:src/cosmeticx//*&amp;&amp;!file[PocketMine-Client]:src/Frago9876543210//*||file:src/Frago9876543210/EasyForms/elements/FunctionalButton.php||file:src/Frago9876543210/EasyForms/forms/PageForm.php" />
+</component>
