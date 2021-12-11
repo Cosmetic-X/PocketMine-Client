@@ -35,7 +35,6 @@ class CosmeticXCommand extends Command{
 		parent::__construct("cosmeticx", "Cosmetic-X command", "§cUsage: §7/cosmeticx help", ["cx"]);
 		$this->setPermission("cosmetic-x.command");
 		$this->loadSubCommand(new InfoSubCommand("info", ["i"]));
-		$this->loadSubCommand(new HelpSubCommand("help", ["?"]));
 	}
 
 	/**

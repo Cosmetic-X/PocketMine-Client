@@ -24,30 +24,25 @@ use Stringable;
  */
 class ApiRequest{
 	private array $headers = [];
-	private array $data = [];
-	private ?Closure $onResponse;
+	private array $data;
 
 	/**
 	 * ApiRequest constructor.
-	 * @param string $token
-	 * @param null|Closure $onResponse
+	 * @param string $uri
+	 * @param array $data
 	 */
-	public function __construct(string $token, Closure $onResponse = null){
-		Utils::validateCallableSignature(function (array $responseData){
-		}, $onResponse);
-		$this->onResponse = $onResponse;
+	public function __construct(private string $uri, array $data = []){
 		$this->header("Accept", "application/json");
 		$this->header("Content-Type", "application/json");
-		$this->header("Token", $token);
+		$this->data = $data;
 	}
 
 	/**
-	 * Function response
-	 * @param array $responseData
-	 * @return null|Closure
+	 * Function getUri
+	 * @return string
 	 */
-	public function response(array $responseData): ?Closure{
-		return ($this->onResponse)($responseData);
+	public function getUri(): string{
+		return $this->uri;
 	}
 
 	/**

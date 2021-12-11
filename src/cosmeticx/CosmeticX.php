@@ -6,7 +6,10 @@
  */
 
 namespace cosmeticx;
+use Closure;
 use cosmeticx\command\CosmeticXCommand;
+use cosmeticx\command\subcommand\HelpSubCommand;
+use cosmeticx\task\async\SendRequestAsyncTask;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\PluginBase;
@@ -17,6 +20,7 @@ use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use pocketmine\utils\Internet;
 use pocketmine\utils\SingletonTrait;
+use pocketmine\utils\Utils;
 
 
 /**
@@ -29,6 +33,7 @@ use pocketmine\utils\SingletonTrait;
  */
 class CosmeticX extends PluginBase{
 	use SingletonTrait;
+
 
 	const         IS_DEVELOPMENT = false;
 	private const URL            = "https://cosmetic-x.be";
@@ -48,7 +53,9 @@ class CosmeticX extends PluginBase{
 	public function __construct(PluginLoader $loader, Server $server, PluginDescription $description, string $dataFolder, string $file, ResourceProvider $resourceProvider){
 		parent::__construct($loader, $server, $description, $dataFolder, $file, $resourceProvider);
 		self::setInstance($this);
+		PermissionManager::getInstance()->addPermission(new Permission("cosmetic-x.command", "Allows to use the '/cosmeticx' command."));
 		$this->command = new CosmeticXCommand();
+		$this->command->loadSubCommand(new HelpSubCommand("help", ["?"]));
 	}
 
 	/**
@@ -77,7 +84,9 @@ class CosmeticX extends PluginBase{
 	protected function onEnable(): void{
 		$this->registerPermissions();
 		$this->getServer()->getCommandMap()->register("cosmeticx", $this->command);
-		$request = new ApiRequest($this->token, function (array $data){
+		$this->check();
+		$request = new ApiRequest("/available-cosmetics");
+		self::sendRequest($request, function (array $data){
 			foreach ($data as $id => $name) {
 				CosmeticManager::getInstance()->registerCosmetic($id, $name);
 			}
@@ -86,34 +95,28 @@ class CosmeticX extends PluginBase{
 				$this->getLogger()->debug("Loaded " . $cosmetics . ($cosmetics == 1 ? " cosmetic" : " cosmetics"));
 			}
 		});
-		self::sendRequest("/available-cosmetics", $request);
+	}
+
+	/**
+	 * Function check
+	 * @return void
+	 */
+	private function check(): void{
+		$request = new ApiRequest("/", ["version" => $this->getDescription()->getVersion()]);
+		self::sendRequest($request, function (array $data){
+			var_dump($data);
+		});
 	}
 
 	/**
 	 * Function sendRequest
-	 * @param string $uri
 	 * @param ApiRequest $request
+	 * @param Closure $onResponse
 	 * @return void
 	 */
-	public static function sendRequest(string $uri, ApiRequest $request): void{
-		Server::getInstance()->getAsyncPool()->submitTask(new class($uri, $request) extends AsyncTask{
-			public function __construct(private string $uri, private ApiRequest $request){
-			}
-
-			public function onRun(): void{
-				$result = Internet::postURL(CosmeticX::URL_API . $this->uri, $this->request->getData(), 10, $this->request->getHeaders(), $err);
-				if ($err) {
-					throw $err;
-				}
-				$this->setResult($result ?? null);
-			}
-
-			public function onCompletion(): void{
-				if (!is_null($result = $this->getResult())) {
-					$this->request->response($result);
-				}
-			}
-		});
+	public static function sendRequest(ApiRequest $request, Closure $onResponse): void{
+		$request->header("Token", CosmeticX::getInstance()->token);
+		Server::getInstance()->getAsyncPool()->submitTask(new SendRequestAsyncTask($request, $onResponse));
 	}
 
 	/**
@@ -121,7 +124,7 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	private function registerPermissions(): void{
-		$overlord = new Permission("cosmeticx.*", "Overlord permission");
+		$overlord = new Permission("cosmetic-x.*", "Overlord permission");
 		foreach ($this->command->getSubCommands() as $subCommand) {
 			if (!is_null($subCommand->getPermission())) {
 				$permission = $this->command->getPermission() . "." . $subCommand->getPermission();
@@ -129,5 +132,6 @@ class CosmeticX extends PluginBase{
 				$overlord->addChild($permission, true);
 			}
 		}
+		PermissionManager::getInstance()->addPermission($overlord);
 	}
 }
