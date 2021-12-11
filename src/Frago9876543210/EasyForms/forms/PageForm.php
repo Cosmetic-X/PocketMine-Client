@@ -4,14 +4,13 @@
  * All rights reserved.
  * I don't want anyone to use my source code without permission.
  */
-
 namespace Frago9876543210\EasyForms\forms;
 use Closure;
 use Exception;
 use Frago9876543210\EasyForms\elements\Button;
 use Frago9876543210\EasyForms\elements\FunctionalButton;
-use pocketmine\Player;
 use pocketmine\utils\TextFormat;
+
 
 /**
  * Class PageForm
@@ -21,7 +20,6 @@ use pocketmine\utils\TextFormat;
  * @project StimoCloud
  */
 class PageForm{
-
 	protected Player $player;
 	protected string $title = "";
 	/** @var string[][]|FunctionalButton[][] */
@@ -29,7 +27,6 @@ class PageForm{
 	protected ?Closure $onClose = null;
 	protected int $activePage;
 	protected MenuForm $form;
-
 
 	/**
 	 * PageForm constructor.
@@ -51,6 +48,52 @@ class PageForm{
 	}
 
 	/**
+	 * Function setOnClose
+	 * @param null|Closure $onClose
+	 * @return void
+	 */
+	public function setOnClose(?Closure $onClose): void{
+		if ($onClose !== null) {
+			$this->onClose = $onClose;
+		}
+	}
+
+	/**
+	 * Function updateForm
+	 * @return void
+	 * @throws Exception
+	 */
+	private function resendForm(): void{
+		$buttonForm = (isset($this->pages[0]) && isset($this->pages[0][0])
+			? $this->pages[0][0] instanceof FunctionalButton : null);
+		if (is_null($buttonForm))
+			throw new Exception("Invalid array format, it must be: '\$pages[integer][string|FunctionalButton]'");
+		$this->player->sendForm(new MenuForm($this->title, ($buttonForm ? ""
+				: implode(PHP_EOL . TextFormat::RESET, $this->pages[$this->activePage])), ($buttonForm
+				? array_merge($this->pages[$this->activePage], $this->getActionButtons())
+				: $this->getActionButtons()), function (Player $player, Button $button): void{
+				if ($button instanceof FunctionalButton) {
+					$button->onClick($player);
+					return;
+				}
+				if (TextFormat::clean($button->getText()) == "<-") {
+					$this->activePage--;
+					$this->resendForm();
+					return;
+				}
+				if (TextFormat::clean($button->getText()) == "->") {
+					$this->activePage++;
+					$this->resendForm();
+					return;
+				}
+				//if (TextFormat::clean($button->getText()) == ($player instanceof self ? $player->translate("ui.button.close") : "%ui.button.close")) {
+				if (TextFormat::clean($button->getText()) == "%ui.button.close") {
+					return;
+				}
+			}, $this->onClose));
+	}
+
+	/**
 	 * Function getActionButtons
 	 * @return Button[]
 	 */
@@ -65,56 +108,5 @@ class PageForm{
 			$buttons[] = new Button("->");
 		}
 		return $buttons;
-	}
-
-	/**
-	 * Function updateForm
-	 * @return void
-	 * @throws Exception
-	 */
-	private function resendForm(): void{
-		$buttonForm = (isset($this->pages[0]) && isset($this->pages[0][0]) ? $this->pages[0][0] instanceof FunctionalButton : null);
-		if (is_null($buttonForm))
-			throw new Exception("Invalid array format, it must be: '\$pages[integer][string|FunctionalButton]'");
-
-		$this->player->sendForm(
-			new MenuForm(
-				$this->title,
-				($buttonForm ? "" : implode(PHP_EOL . TextFormat::RESET, $this->pages[$this->activePage])),
-				($buttonForm ? array_merge($this->pages[$this->activePage], $this->getActionButtons()) : $this->getActionButtons()),
-				function (Player $player, Button $button): void{
-					if ($button instanceof FunctionalButton) {
-						$button->onClick($player);
-						return;
-					}
-					if (TextFormat::clean($button->getText()) == "<-") {
-						$this->activePage--;
-						$this->resendForm();
-						return;
-					}
-					if (TextFormat::clean($button->getText()) == "->") {
-						$this->activePage++;
-						$this->resendForm();
-						return;
-					}
-					//if (TextFormat::clean($button->getText()) == ($player instanceof self ? $player->translate("ui.button.close") : "%ui.button.close")) {
-					if (TextFormat::clean($button->getText()) == "%ui.button.close") {
-						return;
-					}
-				},
-				$this->onClose
-			)
-		);
-	}
-
-	/**
-	 * Function setOnClose
-	 * @param null|Closure $onClose
-	 * @return void
-	 */
-	public function setOnClose(?Closure $onClose): void{
-		if ($onClose !== null) {
-			$this->onClose = $onClose;
-		}
 	}
 }

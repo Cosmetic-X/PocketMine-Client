@@ -3,9 +3,8 @@ declare(strict_types=1);
 namespace Frago9876543210\EasyForms\forms;
 use Closure;
 use Frago9876543210\EasyForms\elements\Button;
-use pocketmine\form\FormValidationException;
-use pocketmine\Player;
 use Frago9876543210\EasyForms\elements\FunctionalButton;
+use pocketmine\form\FormValidationException;
 
 use function array_merge;
 use function is_string;
@@ -34,16 +33,6 @@ class MenuForm extends Form{
 		$this->append(...$buttons);
 		$this->setOnSubmit($onSubmit);
 		$this->setOnClose($onClose);
-	}
-
-	/**
-	 * @param string $text
-	 *
-	 * @return self
-	 */
-	public function setText(string $text): self{
-		$this->text = $text;
-		return $this;
 	}
 
 	/**
@@ -84,20 +73,20 @@ class MenuForm extends Form{
 	}
 
 	/**
+	 * @param string $text
+	 *
+	 * @return self
+	 */
+	public function setText(string $text): self{
+		$this->text = $text;
+		return $this;
+	}
+
+	/**
 	 * @return string
 	 */
 	final public function getType(): string{
 		return self::TYPE_MENU;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function serializeFormData(): array{
-		return [
-			"buttons" => $this->buttons,
-			"content" => $this->text,
-		];
 	}
 
 	final public function handleResponse(Player $player, $data): void{
@@ -121,5 +110,15 @@ class MenuForm extends Form{
 		} else {
 			throw new FormValidationException("Expected int or null, got " . gettype($data));
 		}
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function serializeFormData(): array{
+		return [
+			"buttons" => $this->buttons,
+			"content" => $this->text,
+		];
 	}
 }

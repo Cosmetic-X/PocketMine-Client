@@ -37,13 +37,6 @@ class Button extends Element{
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function hasImage(): bool{
-		return $this->image !== null;
-	}
-
-	/**
 	 * @return array
 	 */
 	public function serializeElementData(): array{
@@ -52,5 +45,12 @@ class Button extends Element{
 			$data["image"] = $this->image;
 		}
 		return $data;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasImage(): bool{
+		return $this->image !== null;
 	}
 }

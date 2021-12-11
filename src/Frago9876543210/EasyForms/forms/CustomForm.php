@@ -5,7 +5,6 @@ use Closure;
 use Frago9876543210\EasyForms\elements\Element;
 use pocketmine\form\FormValidationException;
 
-use pocketmine\Player;
 use function array_merge;
 use function gettype;
 use function is_array;
@@ -53,13 +52,6 @@ class CustomForm extends Form{
 		return self::TYPE_CUSTOM_FORM;
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function serializeFormData(): array{
-		return ["content" => $this->elements];
-	}
-
 	final public function handleResponse(Player $player, $data): void{
 		if ($data === null) {
 			if ($this->onClose !== null) {
@@ -78,5 +70,12 @@ class CustomForm extends Form{
 		} else {
 			throw new FormValidationException("Expected array or null, got " . gettype($data));
 		}
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function serializeFormData(): array{
+		return ["content" => $this->elements];
 	}
 }

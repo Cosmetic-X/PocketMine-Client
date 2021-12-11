@@ -3,7 +3,6 @@ declare(strict_types=1);
 namespace Frago9876543210\EasyForms\forms;
 use Closure;
 use pocketmine\form\FormValidationException;
-use pocketmine\Player;
 
 use function gettype;
 use function is_bool;
@@ -55,6 +54,13 @@ class ModalForm extends Form{
 		return $this->noButton;
 	}
 
+	final public function handleResponse(Player $player, $data): void{
+		if (!is_bool($data)) {
+			throw new FormValidationException("Expected bool, got " . gettype($data));
+		}
+		($this->onSubmit)($player, $data);
+	}
+
 	/**
 	 * @return array
 	 */
@@ -64,12 +70,5 @@ class ModalForm extends Form{
 			"button1" => $this->yesButton,
 			"button2" => $this->noButton,
 		];
-	}
-
-	final public function handleResponse(Player $player, $data): void{
-		if (!is_bool($data)) {
-			throw new FormValidationException("Expected bool, got " . gettype($data));
-		}
-		($this->onSubmit)($player, $data);
 	}
 }

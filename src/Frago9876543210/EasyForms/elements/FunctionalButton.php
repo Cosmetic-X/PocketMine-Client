@@ -4,10 +4,8 @@
  * All rights reserved.
  * I don't want anyone to use my source code without permission.
  */
-
 namespace Frago9876543210\EasyForms\elements;
 use Closure;
-use pocketmine\Player;
 
 
 /**
@@ -19,7 +17,6 @@ use pocketmine\Player;
  */
 class FunctionalButton extends Button{
 	protected ?Closure $onClick = null;
-
 
 	/**
 	 * FunctionalButton constructor.
