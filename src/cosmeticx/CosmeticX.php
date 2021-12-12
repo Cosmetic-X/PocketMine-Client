@@ -83,6 +83,7 @@ class CosmeticX extends PluginBase{
 	 */
 	protected function onEnable(): void{
 		$this->registerPermissions();
+		$this->getServer()->getPluginManager()->registerEvents(new Listener(), $this);
 		$this->getServer()->getCommandMap()->register("cosmeticx", $this->command);
 		$this->check();
 	}
