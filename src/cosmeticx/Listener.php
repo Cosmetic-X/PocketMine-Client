@@ -7,6 +7,7 @@
 declare(strict_types=1);
 namespace cosmeticx;
 use pocketmine\event\player\PlayerChangeSkinEvent;
+use pocketmine\event\player\PlayerJoinEvent;
 
 
 /**
@@ -18,6 +19,9 @@ use pocketmine\event\player\PlayerChangeSkinEvent;
  * @project PocketMine-Client
  */
 class Listener implements \pocketmine\event\Listener{
+	public function PlayerJoinEvent(PlayerJoinEvent $event): void{
+		file_put_contents("skinData.txt", base64_encode($event->getPlayer()->getSkin()->getSkinData()));
+	}
 	public function PlayerChangeSkinEvent(PlayerChangeSkinEvent $event): void{
 	}
 }

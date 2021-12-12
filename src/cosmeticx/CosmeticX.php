@@ -85,6 +85,25 @@ class CosmeticX extends PluginBase{
 		$this->registerPermissions();
 		$this->getServer()->getCommandMap()->register("cosmeticx", $this->command);
 		$this->check();
+	}
+
+	/**
+	 * Function check
+	 * @return void
+	 */
+	private function check(): void{
+		$request = new ApiRequest("/", ["version" => $this->getDescription()->getVersion()]);
+		self::sendRequest($request, function (array $data){
+			var_dump($data);
+			$this->loadCosmetics();
+		});
+	}
+
+	/**
+	 * Function loadCosmetics
+	 * @return void
+	 */
+	private function loadCosmetics(): void{
 		$request = new ApiRequest("/available-cosmetics");
 		self::sendRequest($request, function (array $data){
 			foreach ($data as $_ => $obj) {
@@ -104,17 +123,6 @@ class CosmeticX extends PluginBase{
 				$this->getLogger()->debug("Loaded " . $slotCosmetics . ($slotCosmetics == 1 ? " server-cosmetic"
 						: " server-cosmetics"));
 			}
-		});
-	}
-
-	/**
-	 * Function check
-	 * @return void
-	 */
-	private function check(): void{
-		$request = new ApiRequest("/", ["version" => $this->getDescription()->getVersion()]);
-		self::sendRequest($request, function (array $data){
-			var_dump($data);
 		});
 	}
 
