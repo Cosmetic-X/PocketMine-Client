@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
+var_dump(ini_get("phar.readonly"));
 ini_set("phar.readonly", "1");
 var_dump(ini_get("phar.readonly"));
+
 /**
  * Build script
  */
@@ -30,6 +32,8 @@ $outputPath = CUSTOM_OUTPUT_PATH == ""
 	? getcwd() . DIRECTORY_SEPARATOR . "out" . DIRECTORY_SEPARATOR . FILE_NAME . "_{$description["version"]}.phar"
 	: CUSTOM_OUTPUT_PATH;
 @unlink($outputPath);
+putenv("PHAR_FILE={$outputPath}");
+putenv("SOURCE_FILE={$to}");
 
 // Generate phar
 $phar = new Phar($outputPath);
