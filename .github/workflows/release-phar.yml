@@ -36,7 +36,7 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "dev"
           prerelease: true
-          title: "Release v${{ steps.metadata.outputs.FILE_NAME }}"
+          title: "Release v${{ steps.metadata.outputs.VERSION }}"
           files: |
             ${{ steps.metadata.outputs.FILE_NAME }}.phar
             ${{ steps.metadata.outputs.FILE_NAME }}.zip
