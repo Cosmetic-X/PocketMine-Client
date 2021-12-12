@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+ini_set("phar.readonly", "0");
+var_dump(ini_get("phar.readonly"));
 /**
  * Build script
  */
