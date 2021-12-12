@@ -1,11 +1,11 @@
-name: "Create Development Release"
+name: "Create Release"
 on:
   push:
     branches: ["main"]
 
 jobs:
   build:
-    #if: "contains('dev-release', github.event.head_commit.message) || contains('dev release', github.event.head_commit.message)"
+    if: "contains('Release: ', github.event.head_commit.message)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,27 +15,24 @@ jobs:
         with:
           php-version: 8.0
 
-      - name: Build phar
-        run: |
-          php -dphar.readonly=0 build.php
+      - name: "Build phar"
+        run: "php -dphar.readonly=0 build.php"
 
-      - name: Get output paths
+      - name: "Get data"
         id: metadata
         run: |
           echo ::set-output name=VERSION::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.VERSION.txt");')
           echo ::set-output name=FILE_NAME::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FILE_NAME.txt");')
           echo ::set-output name=FOLDER::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FOLDER.txt");')
 
-      - name: "Create phar release"
-        run: |
-          zip -r ${{ steps.metadata.outputs.FILE_NAME }}.zip ${{ steps.metadata.outputs.FOLDER }}/*
-          echo "Done!"
+      - name: "Build source"
+        run: "zip -r ${{ steps.metadata.outputs.FILE_NAME }}.zip ${{ steps.metadata.outputs.FOLDER }}/*"
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "dev"
-          prerelease: true
+          automatic_release_tag: "latest"
+          prerelease: false
           title: "Release v${{ steps.metadata.outputs.VERSION }}"
           files: |
             ${{ steps.metadata.outputs.FILE_NAME }}.phar

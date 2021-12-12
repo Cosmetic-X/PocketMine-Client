@@ -1,0 +1,39 @@
+name: "Create Development Release"
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    #if: "contains('dev-release', github.event.head_commit.message) || contains('dev release', github.event.head_commit.message)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@2.12.0
+        with:
+          php-version: 8.0
+
+      - name: "Build phar"
+        run: "php -dphar.readonly=0 build.php"
+
+      - name: "Get data"
+        id: metadata
+        run: |
+          echo ::set-output name=VERSION::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.VERSION.txt");')
+          echo ::set-output name=FILE_NAME::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FILE_NAME.txt");')
+          echo ::set-output name=FOLDER::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FOLDER.txt");')
+
+      - name: "Build source"
+        run: "zip -r ${{ steps.metadata.outputs.FILE_NAME }}.zip ${{ steps.metadata.outputs.FOLDER }}/*"
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "dev"
+          prerelease: true
+          title: "Development Release v${{ steps.metadata.outputs.VERSION }}"
+          files: |
+            ${{ steps.metadata.outputs.FILE_NAME }}.phar
+            ${{ steps.metadata.outputs.FILE_NAME }}.zip
