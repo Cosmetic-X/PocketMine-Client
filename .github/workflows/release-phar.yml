@@ -22,12 +22,12 @@ jobs:
       - name: Get output paths
         id: get-output-paths
         run: |
-          echo ::set-output name=PATH_PHAR::$(php -r 'require "build.php"; echo getenv("PATH_PHAR");')
-          echo ::set-output name=PATH_SOURCE::$(php -r 'require "build.php"; echo getenv("PATH_SOURCE");')
+          echo ::set-output name=FILE_NAME::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FILE_NAME.txt");')
+          echo ::set-output name=FOLDER::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FOLDER.txt");')
 
       - name: "Create phar release"
         run: |
-          zip -r ${{ steps.get-output-paths.outputs.PATH_PHAR }}.zip ${{ steps.get-output-paths.outputs.PATH_SOURCE }}/*
+          zip -r ${{ steps.get-output-paths.outputs.FILE_NAME }}.zip ${{ steps.get-output-paths.outputs.FOLDER }}/*
           echo "Done!"
 
       - uses: "marvinpinto/action-automatic-releases@latest"
@@ -37,5 +37,5 @@ jobs:
           prerelease: true
           title: "Development release"
           files: |
-            ${{ steps.get-output-paths.outputs.PATH_PHAR }}.phar
-            ${{ steps.get-output-paths.outputs.PATH_PHAR }}.zip
+            ${{ steps.get-output-paths.outputs.FILE_NAME }}.phar
+            ${{ steps.get-output-paths.outputs.FILE_NAME }}.zip

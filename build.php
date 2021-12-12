@@ -1,13 +1,8 @@
 <?php
 declare(strict_types=1);
-var_dump(ini_get("phar.readonly"));
-var_dump(ini_set("phar.readonly", "0"));
-var_dump(ini_get("phar.readonly"));
-
 /**
  * Build script
  */
-const CUSTOM_OUTPUT_PATH = "";
 const FILE_NAME = "Cosmetic-X";
 const COMPRESS_FILES = true;
 const COMPRESSION = Phar::GZ;
@@ -28,20 +23,19 @@ $description = yaml_parse_file($from . "plugin.yml");
 yaml_emit_file($to . "plugin.yml", $description);
 
 // Defining output path...
-$outputPath = CUSTOM_OUTPUT_PATH == ""
-	? getcwd() . DIRECTORY_SEPARATOR . "out" . DIRECTORY_SEPARATOR . FILE_NAME . "_{$description["version"]}.phar"
-	: CUSTOM_OUTPUT_PATH;
-@unlink($outputPath);
-putenv("PHAR_FILE={$outputPath}");
-putenv("SOURCE_FILE={$to}");
+$outputPath = $from . "out" . DIRECTORY_SEPARATOR . FILE_NAME . "_{$description["version"]}";
+@unlink($outputPath . ".phar");
+
+file_put_contents($from . "out" . DIRECTORY_SEPARATOR . ".FILE_NAME.txt", $outputPath, 0777);
+file_put_contents($from . "out" . DIRECTORY_SEPARATOR . ".FOLDER.txt", $to, 0777);
 
 // Generate phar
-$phar = new Phar($outputPath);
+$phar = new Phar($outputPath . ".phar");
 $phar->buildFromDirectory($to);
 if (COMPRESS_FILES) {
 	$phar->compressFiles(COMPRESSION);
 }
-printf("Plugin built in %s seconds! Output path: %s\n", round(microtime(true) - $startTime, 3), $outputPath);
+printf("Built in %s seconds! Output path: %s\n", round(microtime(true) - $startTime, 3), $outputPath);
 
 function copyDirectory(string $from, string $to): void{
 	mkdir($to, 0777, true);
