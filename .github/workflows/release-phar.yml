@@ -11,7 +11,7 @@ jobs:
       - name: Build phar
         run: |
           chmod +x build.php
-          php build.php
+          php -n build.php
       - name: "Create phar release"
         run: |
           rm -r build.php
