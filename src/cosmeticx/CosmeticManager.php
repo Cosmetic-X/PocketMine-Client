@@ -22,11 +22,10 @@ use pocketmine\utils\SingletonTrait;
 class CosmeticManager{
 	use SingletonTrait;
 
-
 	/** @var Cosmetic[] */
 	private array $publicCosmetics = [];
 	/** @var Cosmetic[] */
-	private array $cosmetics = [];
+	private array $slotCosmetics = [];
 	/** @var Skin[] */
 	private array $localCosmetics = [];
 
@@ -43,15 +42,15 @@ class CosmeticManager{
 	 * @return void
 	 */
 	function resetPublicCosmetics(): void{
-		$this->cosmetics = [];
+		$this->publicCosmetics = [];
 	}
 
 	/**
 	 * Function resetCosmetics
 	 * @return void
 	 */
-	function resetCosmetics(): void{
-		$this->cosmetics = [];
+	function resetSlotCosmetics(): void{
+		$this->slotCosmetics = [];
 	}
 
 	/**
@@ -81,7 +80,7 @@ class CosmeticManager{
 	 * @return void
 	 */
 	function registerSlotCosmetic(string $name, string $id): void{
-		$this->cosmetics[$name] = new Cosmetic($name, $id, Cosmetic::SLOT);
+		$this->slotCosmetics[$name] = new Cosmetic($name, $id, Cosmetic::SLOT);
 	}
 
 	/**
@@ -96,15 +95,15 @@ class CosmeticManager{
 	 * Function getPublicCosmetics
 	 * @return Cosmetic[]
 	 */
-	public function getPublicCosmetics(): array{
+	function getPublicCosmetics(): array{
 		return $this->publicCosmetics;
 	}
 
 	/**
-	 * Function getCosmetics
-	 * @return Cosmetic[]
+	 * Function getSlotCosmetics
+	 * @return array
 	 */
-	function getCosmetics(): array{
-		return $this->cosmetics;
+	function getSlotCosmetics(): array{
+		return $this->slotCosmetics;
 	}
 }

@@ -87,12 +87,22 @@ class CosmeticX extends PluginBase{
 		$this->check();
 		$request = new ApiRequest("/available-cosmetics");
 		self::sendRequest($request, function (array $data){
-			foreach ($data as $id => $name) {
-				CosmeticManager::getInstance()->registerCosmetic($id, $name);
+			foreach ($data as $_ => $obj) {
+				if ($_ === "public") {
+					CosmeticManager::getInstance()->registerPublicCosmetics($obj["id"], $obj["name"]);
+				} else if ($_ === "slot") {
+					CosmeticManager::getInstance()->registerSlotCosmetic($obj["id"], $obj["name"]);
+				}
 			}
-			$cosmetics = count(CosmeticManager::getInstance()->getCosmetics());
-			if ($cosmetics > 0) {
-				$this->getLogger()->debug("Loaded " . $cosmetics . ($cosmetics == 1 ? " cosmetic" : " cosmetics"));
+			$publicCosmetics = count(CosmeticManager::getInstance()->getPublicCosmetics());
+			if ($publicCosmetics > 0) {
+				$this->getLogger()->debug("Loaded " . $publicCosmetics . ($publicCosmetics == 1 ? " public-cosmetic"
+						: " public-cosmetics"));
+			}
+			$slotCosmetics = count(CosmeticManager::getInstance()->getPublicCosmetics());
+			if ($slotCosmetics > 0) {
+				$this->getLogger()->debug("Loaded " . $slotCosmetics . ($slotCosmetics == 1 ? " server-cosmetic"
+						: " server-cosmetics"));
 			}
 		});
 	}
