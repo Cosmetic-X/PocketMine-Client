@@ -1,29 +1,41 @@
-name: "Release Phar"
+name: "Create Development Release"
 on:
   push:
     branches: ["main"]
 
 jobs:
   build:
+    if: "startsWith(github.event.head_commit.message, 'dev-release')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@2.12.0
+        with:
+          php-version: 8.0
+
       - name: Build phar
         run: |
-          chmod +x build.php
-          php -n build.php
+          php -dphar.readonly=0 build.php
+
+      - name: Get output paths
+        id: get-output-paths
+        run: |
+          echo ::set-output name=PATH_PHAR::$(php -r 'require "build.php"; echo getenv("PATH_PHAR");')
+          echo ::set-output name=PATH_SOURCE::$(php -r 'require "build.php"; echo getenv("PATH_SOURCE");')
+
       - name: "Create phar release"
         run: |
-          rm -r build.php
-          rm -r README.md
-          zip -r out/Cosmetic-X.zip out/Cosmetic-X/*
+          zip -r ${{ steps.get-output-paths.outputs.PATH_PHAR }}.zip ${{ steps.get-output-paths.outputs.PATH_SOURCE }}/*
           echo "Done!"
+
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "dev"
           prerelease: true
-          title: "Phar"
+          title: "Development release"
           files: |
-            out/Cosmetic-X.phar
-            out/Cosmetic-X.zip
+            ${{ steps.get-output-paths.outputs.PATH_PHAR }}.phar
+            ${{ steps.get-output-paths.outputs.PATH_PHAR }}.zip
