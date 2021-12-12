@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 var_dump(ini_get("phar.readonly"));
-ini_set("phar.readonly", "1");
+var_dump(ini_set("phar.readonly", "1"));
 var_dump(ini_get("phar.readonly"));
 
 /**
