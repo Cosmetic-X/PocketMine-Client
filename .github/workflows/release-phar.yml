@@ -1,0 +1,27 @@
+name: "Release Phar"
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build phar
+        run: "php build.php"
+      - name: "Create phar release"
+        run: |
+          rm -r build.php
+          rm -r README.md
+          zip -r out/Cosmetic-X.zip out/Cosmetic-X/*
+          echo "Done!"
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "dev"
+          prerelease: true
+          title: "Phar"
+          files: |
+            out/Cosmetic-X.phar
+            out/Cosmetic-X.zip
