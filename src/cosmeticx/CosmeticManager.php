@@ -7,7 +7,6 @@
 declare(strict_types=1);
 namespace cosmeticx;
 use cosmeticx\cosmetics\Cosmetic;
-use pocketmine\entity\Skin;
 use pocketmine\utils\SingletonTrait;
 
 
@@ -26,16 +25,6 @@ class CosmeticManager{
 	private array $publicCosmetics = [];
 	/** @var Cosmetic[] */
 	private array $slotCosmetics = [];
-	/** @var Skin[] */
-	private array $localCosmetics = [];
-
-	/**
-	 * Function resetLocalCosmetics
-	 * @return void
-	 */
-	function resetLocalCosmetics(): void{
-		$this->localCosmetics = [];
-	}
 
 	/**
 	 * Function resetPublicCosmetics
@@ -51,16 +40,6 @@ class CosmeticManager{
 	 */
 	function resetSlotCosmetics(): void{
 		$this->slotCosmetics = [];
-	}
-
-	/**
-	 * Function registerLocalCosmetic
-	 * @param string $name
-	 * @param Skin $skin
-	 * @return void
-	 */
-	function registerLocalCosmetic(string $name, Skin $skin): void{
-		$this->localCosmetics[$name] = $skin;
 	}
 
 	/**
@@ -81,14 +60,6 @@ class CosmeticManager{
 	 */
 	function registerSlotCosmetic(string $name, string $id): void{
 		$this->slotCosmetics[$name] = new Cosmetic($name, $id, Cosmetic::SLOT);
-	}
-
-	/**
-	 * Function getLocalCosmetics
-	 * @return Skin[]
-	 */
-	function getLocalCosmetics(): array{
-		return $this->localCosmetics;
 	}
 
 	/**
