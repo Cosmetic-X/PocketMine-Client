@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    if: "startsWith(github.event.head_commit.message, 'dev-release')"
+    if: "contains('dev-release', github.event.head_commit.message) || contains('dev release', github.event.head_commit.message)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
