@@ -9,7 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build phar
-        run: "php build.php"
+        run: |
+          chmod +x build.php
+          php build.php
       - name: "Create phar release"
         run: |
           rm -r build.php
