@@ -26,6 +26,7 @@ yaml_emit_file($to . "plugin.yml", $description);
 $outputPath = $from . "out" . DIRECTORY_SEPARATOR . FILE_NAME . "_{$description["version"]}";
 @unlink($outputPath . ".phar");
 
+file_put_contents($from . "out" . DIRECTORY_SEPARATOR . ".VERSION.txt", $description["version"], 0777);
 file_put_contents($from . "out" . DIRECTORY_SEPARATOR . ".FILE_NAME.txt", $outputPath, 0777);
 file_put_contents($from . "out" . DIRECTORY_SEPARATOR . ".FOLDER.txt", $to, 0777);
 

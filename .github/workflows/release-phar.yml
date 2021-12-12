@@ -20,14 +20,15 @@ jobs:
           php -dphar.readonly=0 build.php
 
       - name: Get output paths
-        id: get-output-paths
+        id: metadata
         run: |
+          echo ::set-output name=VERION::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.VERSION.txt");')
           echo ::set-output name=FILE_NAME::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FILE_NAME.txt");')
           echo ::set-output name=FOLDER::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FOLDER.txt");')
 
       - name: "Create phar release"
         run: |
-          zip -r ${{ steps.get-output-paths.outputs.FILE_NAME }}.zip ${{ steps.get-output-paths.outputs.FOLDER }}/*
+          zip -r ${{ steps.metadata.outputs.FILE_NAME }}.zip ${{ steps.metadata.outputs.FOLDER }}/*
           echo "Done!"
 
       - uses: "marvinpinto/action-automatic-releases@latest"
@@ -35,7 +36,7 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "dev"
           prerelease: true
-          title: "Development release"
+          title: "Release v${{ steps.metadata.outputs.FILE_NAME }}"
           files: |
-            ${{ steps.get-output-paths.outputs.FILE_NAME }}.phar
-            ${{ steps.get-output-paths.outputs.FILE_NAME }}.zip
+            ${{ steps.metadata.outputs.FILE_NAME }}.phar
+            ${{ steps.metadata.outputs.FILE_NAME }}.zip
