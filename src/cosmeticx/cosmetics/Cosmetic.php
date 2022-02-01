@@ -1,8 +1,8 @@
 <?php
 /*
- * Copyright (c) 2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * This plugin is under GPL license
  */
 declare(strict_types=1);
 namespace cosmeticx\cosmetics;
@@ -21,17 +21,20 @@ class Cosmetic{
 	const PUBLIC = 0;
 	const SLOT   = 1;
 	private string $name;
+	private string $display_name;
 	private bool $public;
 	private string $id;
 
 	/**
 	 * Cosmetic constructor.
 	 * @param string $name
+	 * @param string $display_name
 	 * @param null|string $id
 	 * @param int $type
 	 */
-	public function __construct(string $name, string $id = null, int $type = self::PUBLIC){
+	public function __construct(string $name, string $display_name, string $id = null, int $type = self::PUBLIC){
 		$this->name = $name;
+		$this->display_name = $display_name;
 		$this->public = $type == self::PUBLIC;
 		$this->id = $id ?? Uuid::uuid4()->toString();
 	}
@@ -42,6 +45,14 @@ class Cosmetic{
 	 */
 	public function getName(): string{
 		return $this->name;
+	}
+
+	/**
+	 * Function getDisplayName
+	 * @return string
+	 */
+	public function getDisplayName(): string{
+		return $this->display_name;
 	}
 
 	/**

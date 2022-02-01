@@ -112,13 +112,16 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	private function loadCosmetics(): void{
-		$request = new ApiRequest("/available-cosmetics");
+		$request = new ApiRequest("/available-cosmetics", [], true);
 		self::sendRequest($request, function (array $data){
-			foreach ($data as $_ => $obj) {
-				if ($_ === "public") {
-					CosmeticManager::getInstance()->registerPublicCosmetics($obj["id"], $obj["name"]);
-				} else if ($_ === "slot") {
-					CosmeticManager::getInstance()->registerSlotCosmetic($obj["id"], $obj["name"]);
+			foreach ($data as $where => $objs) {
+				foreach ($objs as $obj) {
+					var_dump($obj);
+					if ($where === "public") {
+						CosmeticManager::getInstance()->registerPublicCosmetics($obj["id"], $obj["display_name"], $obj["name"]);
+					} else if ($where === "slot") {
+						CosmeticManager::getInstance()->registerSlotCosmetic($obj["id"], $obj["display_name"], $obj["name"]);
+					}
 				}
 			}
 			$publicCosmetics = count(CosmeticManager::getInstance()->getPublicCosmetics());
