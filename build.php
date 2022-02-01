@@ -46,7 +46,18 @@ if (is_dir("C:/Users/kfeig/Desktop/pmmp" . (is_array($description["api"]) ? expl
 	@unlink($outputPath . ".phar");
 	// Generate phar
 	$phar = new Phar($outputPath . ".phar");
-	$phar->buildFromDirectory($to);
+	$error = true;
+	while ($error) {
+		try {
+			$phar->buildFromDirectory($to);
+			$error = false;
+		} catch (PharException $e) {
+		}
+		if ($error) {
+			echo "Cannot access to file, file is used" . PHP_EOL;
+			sleep(2);
+		}
+	}
 	$phar->addFile(__DIR__ . DIRECTORY_SEPARATOR . "LICENSE");
 	$phar->addFile(__DIR__ . DIRECTORY_SEPARATOR . "README.md");
 	$phar->compressFiles(Phar::GZ);
