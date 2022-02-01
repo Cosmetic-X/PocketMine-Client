@@ -1,8 +1,8 @@
 <?php
 /*
- * Copyright (c) 2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * This plugin is under GPL license
  */
 declare(strict_types=1);
 namespace cosmeticx\command\subcommand;
@@ -30,8 +30,7 @@ class HelpSubCommand extends SubCommand{
 	public function __construct(string $name, array $aliases = []){
 		parent::__construct($name, $aliases);
 		foreach (CosmeticX::getInstance()->command->getSubCommands() as $_ => $subCommand) {
-			$this->help[] = "§a  /" . CosmeticX::getInstance()->command->getName() . " {$subCommand->getName()}" . (count($subCommand->getAliases()) > 0
-					? " |" . implode("|", $subCommand->getAliases()) : "");
+			$this->help[] = "§a  /" . CosmeticX::getInstance()->command->getName() . " {$subCommand->getName()}" . (count($subCommand->getAliases()) > 0 ? " | " . implode("|", $subCommand->getAliases()) : "");
 		}
 	}
 

@@ -1,8 +1,8 @@
 <?php
 /*
- * Copyright (c) 2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * This plugin is under GPL license
  */
 declare(strict_types=1);
 namespace cosmeticx\command;
@@ -59,9 +59,9 @@ class CosmeticXCommand extends Command{
 	 * @param CommandSender $sender
 	 * @param string $commandLabel
 	 * @param array $args
-	 * @return mixed|void
+	 * @return void
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args): void{
 		if (!isset($args[0])) {
 			$sender->sendMessage($this->getUsage());
 		} else {
