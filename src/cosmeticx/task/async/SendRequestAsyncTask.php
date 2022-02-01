@@ -23,12 +23,15 @@ use pocketmine\utils\Utils;
  * @project PocketMine-Client
  */
 class SendRequestAsyncTask extends AsyncTask{
+	protected string $url;
 	/**
 	 * Anonymous constructor.
 	 * @param ApiRequest $request
 	 * @param Closure $onResponse
+	 * @param int $timeout
 	 */
-	public function __construct(private ApiRequest $request, private Closure $onResponse){
+	public function __construct(private ApiRequest $request, private Closure $onResponse, private int $timeout = 5){
+		$this->url = CosmeticX::$URL_API;
 		Utils::validateCallableSignature(function (array $responseData){
 		}, $onResponse);
 	}

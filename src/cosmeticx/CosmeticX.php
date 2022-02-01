@@ -16,11 +16,8 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginDescription;
 use pocketmine\plugin\PluginLoader;
 use pocketmine\plugin\ResourceProvider;
-use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
-use pocketmine\utils\Internet;
 use pocketmine\utils\SingletonTrait;
-use pocketmine\utils\Utils;
 
 
 /**
@@ -36,8 +33,11 @@ class CosmeticX extends PluginBase{
 
 
 	const         IS_DEVELOPMENT = false;
-	private const URL            = "https://cosmetic-x.be";
-	const         URL_API        = self::URL . "/api";
+
+	private static string $PROTOCOL = "https";
+	private static string $URL = "cosmetic-x.be";
+	static string $URL_API;
+
 	private string $token = "";
 	public CosmeticXCommand $command;
 
@@ -51,6 +51,7 @@ class CosmeticX extends PluginBase{
 	 * @param ResourceProvider $resourceProvider
 	 */
 	public function __construct(PluginLoader $loader, Server $server, PluginDescription $description, string $dataFolder, string $file, ResourceProvider $resourceProvider){
+		self::$URL_API = self::$PROTOCOL . "://" . self::$URL . "/api";
 		parent::__construct($loader, $server, $description, $dataFolder, $file, $resourceProvider);
 		self::setInstance($this);
 		PermissionManager::getInstance()->addPermission(new Permission("cosmetic-x.command", "Allows to use the '/cosmeticx' command."));
@@ -68,6 +69,12 @@ class CosmeticX extends PluginBase{
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}
+		$this->saveDefaultConfig();
+		CosmeticX::$PROTOCOL = $this->getConfig()->get("protocol", CosmeticX::$PROTOCOL);
+		CosmeticX::$URL = $this->getConfig()->get("host", CosmeticX::$URL);
+		$port = $this->getConfig()->get("port", "");
+		CosmeticX::$URL_API = CosmeticX::$PROTOCOL . "://" . CosmeticX::$URL . (!empty($port) ? ":$port" : "") . "/api";
+
 		if (empty($this->token)) {
 			$this->saveResource("TOKEN.txt");
 			if (!file_exists($this->getDataFolder() . "TOKEN.txt")) {
@@ -134,7 +141,7 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	public static function sendRequest(ApiRequest $request, Closure $onResponse): void{
-		$request->header("Token", CosmeticX::getInstance()->token);
+		$request->header("token", CosmeticX::getInstance()->token);
 		Server::getInstance()->getAsyncPool()->submitTask(new SendRequestAsyncTask($request, $onResponse));
 	}
 
