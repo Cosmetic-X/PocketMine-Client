@@ -102,7 +102,9 @@ class CosmeticX extends PluginBase{
 	private function check(): void{
 		$request = new ApiRequest("/", ["version" => $this->getDescription()->getVersion()]);
 		self::sendRequest($request, function (array $data){
-			var_dump($data);
+			if (version_compare($data["lastest-client-version"], explode("+", $this->getDescription()->getVersion())[0]) == 1) {
+				$this->getLogger()->notice("New update available. https://github.com/Cosmetic-X");
+			}
 			$this->loadCosmetics();
 		});
 	}
