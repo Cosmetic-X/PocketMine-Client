@@ -11,6 +11,7 @@ use cosmeticx\command\CosmeticXCommand;
 use cosmeticx\task\async\SendRequestAsyncTask;
 use Frago9876543210\EasyForms\elements\Image;
 use Phar;
+use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\PluginBase;
@@ -168,10 +169,12 @@ class CosmeticX extends PluginBase{
 	private function registerPermissions(): void{
 		unset($this->permissions);
 		$this->permissions = [];
+		$op = PermissionManager::getInstance()->getPermission(DefaultPermissions::ROOT_OPERATOR);
 		$overlord = new Permission("cosmetic-x.*", "Overlord permission");
 		foreach ($this->command->getSubCommands() as $subCommand) {
 			if (!is_null($subCommand->getPermission())) {
 				$permission = $this->command->getPermission() . "." . $subCommand->getPermission();
+				$op->addChild($permission, true);
 				PermissionManager::getInstance()->addPermission($this->permissions[] = new Permission($permission, "Allows to use the '/{$this->command->getName()} {$subCommand->getName()}' command."));
 				$overlord->addChild($permission, true);
 			}
