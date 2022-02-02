@@ -8,6 +8,7 @@ declare(strict_types=1);
 /**
  * Build script
  */
+$IS_GITHUB_ACTIONS = (getenv("IS_GITHUB_ACTIONS") !== false);
 $startTime = microtime(true);
 // Input & Output directory...
 $from = getcwd() . DIRECTORY_SEPARATOR;
@@ -33,6 +34,24 @@ if (is_dir($from . "resources")) {
 yaml_emit_file($to . "plugin.yml", $description);
 // Defining output path...
 @unlink($outputPath . ".phar");
+if($IS_GITHUB_ACTIONS){
+	if (file_exists($API = $from . "out" . DIRECTORY_SEPARATOR . ".API.txt")) {
+		unlink($API);
+	}
+	if (file_exists($VERSION = $from . "out" . DIRECTORY_SEPARATOR . ".VERSION.txt")) {
+		unlink($VERSION);
+	}
+	if (file_exists($FILE_NAME = $from . "out" . DIRECTORY_SEPARATOR . ".FILE_NAME.txt")) {
+		unlink($FILE_NAME);
+	}
+	if (file_exists($FOLDER = $from . "out" . DIRECTORY_SEPARATOR . ".FOLDER.txt")) {
+		unlink($FOLDER);
+	}
+	file_put_contents($API, (is_array($description["api"]) ? explode(".", $description["api"][0])[0] : (is_string($description["api"]) ? explode(".", $description["api"])[0] : "???")), 0777);
+	file_put_contents($VERSION, $description["version"], 0777);
+	file_put_contents($FILE_NAME, $outputPath, 0777);
+	file_put_contents($FOLDER, $to, 0777);
+}
 // Generate phar
 $phar = new Phar($outputPath . ".phar");
 $phar->buildFromDirectory($to);

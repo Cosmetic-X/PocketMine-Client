@@ -3,6 +3,9 @@ on:
   push:
     branches: ["development"]
 
+env:
+  IS_GITHUB_ACTIONS: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +23,7 @@ jobs:
       - name: "Get data"
         id: metadata
         run: |
+          echo ::set-output name=API::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.API.txt");')
           echo ::set-output name=VERSION::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.VERSION.txt");')
           echo ::set-output name=FILE_NAME::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FILE_NAME.txt");')
           echo ::set-output name=FOLDER::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FOLDER.txt");')
@@ -30,7 +34,7 @@ jobs:
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "dev"
+          automatic_release_tag: "development"
           prerelease: true
           title: "Development Release v${{ steps.metadata.outputs.VERSION }}"
           files: |
