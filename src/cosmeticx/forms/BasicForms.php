@@ -1,11 +1,13 @@
 <?php
 /*
- * Copyright (c) 2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * This plugin is under GPL license
  */
 declare(strict_types=1);
 namespace cosmeticx\forms;
+use Frago9876543210\EasyForms\forms\MenuForm;
+use pocketmine\player\Player;
 use pocketmine\utils\SingletonTrait;
 
 
@@ -19,4 +21,10 @@ use pocketmine\utils\SingletonTrait;
  */
 class BasicForms{
 	use SingletonTrait;
+
+	function sendPublicCosmeticsForm(Player $player): void{
+		$player->sendForm(new MenuForm(
+
+		));
+	}
 }

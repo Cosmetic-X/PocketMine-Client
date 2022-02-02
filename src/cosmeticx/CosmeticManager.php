@@ -1,8 +1,8 @@
 <?php
 /*
- * Copyright (c) 2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * This plugin is under GPL license
  */
 declare(strict_types=1);
 namespace cosmeticx;
@@ -31,6 +31,7 @@ class CosmeticManager{
 	 * @return void
 	 */
 	function resetPublicCosmetics(): void{
+		unset($this->publicCosmetics);
 		$this->publicCosmetics = [];
 	}
 
@@ -39,27 +40,30 @@ class CosmeticManager{
 	 * @return void
 	 */
 	function resetSlotCosmetics(): void{
+		unset($this->slotCosmetics);
 		$this->slotCosmetics = [];
 	}
 
 	/**
 	 * Function registerCosmetic
 	 * @param string $name
+	 * @param string $display_name
 	 * @param string $id
 	 * @return void
 	 */
-	function registerPublicCosmetics(string $name, string $id): void{
-		$this->publicCosmetics[$name] = new Cosmetic($name, $id, Cosmetic::PUBLIC);
+	function registerPublicCosmetics(string $name, string $display_name, string $id): void{
+		$this->publicCosmetics[$id] = new Cosmetic($name, $display_name, $id, Cosmetic::PUBLIC);
 	}
 
 	/**
 	 * Function registerSlotCosmetic
 	 * @param string $name
+	 * @param string $display_name
 	 * @param string $id
 	 * @return void
 	 */
-	function registerSlotCosmetic(string $name, string $id): void{
-		$this->slotCosmetics[$name] = new Cosmetic($name, $id, Cosmetic::SLOT);
+	function registerSlotCosmetic(string $name, string $display_name, string $id): void{
+		$this->slotCosmetics[$id] = new Cosmetic($name, $display_name, $id, Cosmetic::SLOT);
 	}
 
 	/**

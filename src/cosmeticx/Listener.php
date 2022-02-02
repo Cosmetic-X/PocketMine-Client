@@ -1,11 +1,13 @@
 <?php
 /*
- * Copyright (c) 2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * This plugin is under GPL license
  */
 declare(strict_types=1);
 namespace cosmeticx;
+use cosmeticx\utils\Utils;
+use pocketmine\entity\Skin;
 use pocketmine\event\player\PlayerChangeSkinEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 
@@ -20,8 +22,15 @@ use pocketmine\event\player\PlayerJoinEvent;
  */
 class Listener implements \pocketmine\event\Listener{
 	public function PlayerJoinEvent(PlayerJoinEvent $event): void{
-		file_put_contents("skinData.txt", base64_encode($event->getPlayer()->getSkin()->getSkinData()));
+		CosmeticX::sendRequest(new ApiRequest("/merge-skin-with-cosmetic", ["id" => "0","skinData" => Utils::encodeSkinData($event->getPlayer()->getSkin()->getSkinData())], true), function (array $data) use ($event): void{
+			$skin = $event->getPlayer()->getSkin();
+			$event->getPlayer()->setSkin(new Skin($skin->getSkinId(), Utils::decodeSkinData($data["buffer"]), $skin->getCapeData(), $data["geometry_name"] ?? $skin->getGeometryName(), $data["geometry_data"] ?? $skin->getGeometryData()));
+			$event->getPlayer()->sendSkin();
+			$event->getPlayer()->sendMessage("§9Skin changed");
+		});
 	}
 	public function PlayerChangeSkinEvent(PlayerChangeSkinEvent $event): void{
+		$event->cancel();
+		$event->getPlayer()->sendMessage("§cSkin changing is not implemented yet.");
 	}
 }

@@ -8,11 +8,13 @@ declare(strict_types=1);
 namespace cosmeticx\command;
 use cosmeticx\command\subcommand\HelpSubCommand;
 use cosmeticx\command\subcommand\InfoSubCommand;
+use cosmeticx\command\subcommand\ReloadSubCommand;
 use cosmeticx\CosmeticX;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\console\ConsoleCommandSender;
 use pocketmine\player\Player;
+use pocketmine\Server;
 use Throwable;
 
 
@@ -35,6 +37,7 @@ class CosmeticXCommand extends Command{
 		parent::__construct("cosmeticx", "Cosmetic-X command", "§cUsage: §7/cosmeticx help", ["cx"]);
 		$this->setPermission("cosmetic-x.command");
 		$this->loadSubCommand(new InfoSubCommand("info", ["i"]));
+		$this->loadSubCommand(new ReloadSubCommand("reload", ["rl"]));
 	}
 
 	/**
@@ -82,6 +85,9 @@ class CosmeticXCommand extends Command{
 				return;
 			}
 			if ($subCommand instanceof ConsoleSubCommand && !$sender instanceof ConsoleCommandSender) {
+				if (Server::getInstance()->isOp($sender->getName())) {
+					$sender->sendMessage("§cSub-command can only executed in console.");
+				}
 				return;
 			}
 			try {

@@ -41,6 +41,6 @@ class HelpSubCommand extends SubCommand{
 	 * @return void
 	 */
 	public function execute(CommandSender $sender, array $args): void{
-		$sender->sendMessage(PHP_EOL . implode(PHP_EOL, $this->help));
+		$sender->sendMessage("§a--- " . CosmeticX::getInstance()->getDescription()->getName() . " - Help ---" . PHP_EOL . implode(PHP_EOL, $this->help));
 	}
 }

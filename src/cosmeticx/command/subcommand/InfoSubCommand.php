@@ -22,10 +22,10 @@ use pocketmine\command\CommandSender;
 class InfoSubCommand extends SubCommand{
 	public function execute(CommandSender $sender, array $args): void{
 		$desc = CosmeticX::getInstance()->getDescription();
-		$sender->sendMessage("--- " . $desc->getName() . " ---");
+		$sender->sendMessage("----- " . $desc->getName() . " -----");
+		$sender->sendMessage("  Token-Owner: " . CosmeticX::getInstance()->getHolder());
 		$sender->sendMessage("  Version: " . $desc->getVersion());
 		$sender->sendMessage("  Description: " . $desc->getDescription());
 		$sender->sendMessage("  Authors: " . join(", ", $desc->getAuthors()));
-		$sender->sendMessage("--- " . str_repeat("-", strlen($desc->getName())) . " ---");
 	}
 }

@@ -1,8 +1,8 @@
 <?php
 /*
- * Copyright (c) 2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * This plugin is under GPL license
  */
 declare(strict_types=1);
 namespace cosmeticx;
@@ -24,17 +24,18 @@ use Stringable;
  */
 class ApiRequest{
 	private array $headers = [];
-	private array $data;
+	private array $body;
+	private bool $post_method;
 
 	/**
 	 * ApiRequest constructor.
 	 * @param string $uri
-	 * @param array $data
+	 * @param array $body
+	 * @param bool $post_method
 	 */
-	public function __construct(private string $uri, array $data = []){
-		$this->header("Accept", "application/json");
-		$this->header("Content-Type", "application/json");
-		$this->data = $data;
+	public function __construct(private string $uri, array $body = [], bool $post_method = false){
+		$this->body = $body;
+		$this->post_method = $post_method;
 	}
 
 	/**
@@ -57,13 +58,13 @@ class ApiRequest{
 	}
 
 	/**
-	 * Function data
+	 * Function body
 	 * @param string $key
 	 * @param string $value
 	 * @return $this
 	 */
-	public function data(string $key, string $value): self{
-		$this->data[$key] = $value;
+	public function body(string $key, string $value): self{
+		$this->body[$key] = $value;
 		return $this;
 	}
 
@@ -76,10 +77,18 @@ class ApiRequest{
 	}
 
 	/**
-	 * Function getData
+	 * Function getBody
 	 * @return array
 	 */
-	public function getData(): array{
-		return $this->data;
+	public function getBody(): array{
+		return $this->body;
+	}
+
+	/**
+	 * Function isPostMethod
+	 * @return bool
+	 */
+	public function isPostMethod(): bool{
+		return $this->post_method;
 	}
 }

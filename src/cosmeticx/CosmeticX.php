@@ -1,8 +1,8 @@
 <?php
 /*
- * Copyright (c) 2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * This plugin is under GPL license
  */
 
 namespace cosmeticx;
@@ -10,6 +10,7 @@ use Closure;
 use cosmeticx\command\CosmeticXCommand;
 use cosmeticx\command\subcommand\HelpSubCommand;
 use cosmeticx\task\async\SendRequestAsyncTask;
+use Phar;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\PluginBase;
@@ -32,13 +33,12 @@ class CosmeticX extends PluginBase{
 	use SingletonTrait;
 
 
-	const         IS_DEVELOPMENT = false;
-
 	private static string $PROTOCOL = "https";
 	private static string $URL = "cosmetic-x.be";
 	static string $URL_API;
 
-	private string $token = "";
+	private string $token = "TOKEN HERE";
+	private string $holder = "n/a";
 	public CosmeticXCommand $command;
 
 	/**
@@ -64,24 +64,18 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	protected function onLoad(): void{
-		if (!str_starts_with(\Phar::running(), "phar://") && !self::IS_DEVELOPMENT) {
+		if (!str_starts_with(Phar::running(), "phar://")) {
 			$this->getLogger()->error("This plugin cannot be run via source-code");
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}
 		$this->saveDefaultConfig();
+		$this->saveResource("TOKEN.txt");
 		CosmeticX::$PROTOCOL = $this->getConfig()->get("protocol", CosmeticX::$PROTOCOL);
 		CosmeticX::$URL = $this->getConfig()->get("host", CosmeticX::$URL);
 		$port = $this->getConfig()->get("port", "");
 		CosmeticX::$URL_API = CosmeticX::$PROTOCOL . "://" . CosmeticX::$URL . (!empty($port) ? ":$port" : "") . "/api";
-
-		if (empty($this->token)) {
-			$this->saveResource("TOKEN.txt");
-			if (!file_exists($this->getDataFolder() . "TOKEN.txt")) {
-				file_put_contents($this->getDataFolder() . "TOKEN.txt", "TOKEN HERE");
-			}
-			$this->token = file_get_contents($this->getDataFolder() . "TOKEN.txt");
-		}
+		$this->token = file_get_contents($this->getDataFolder() . "TOKEN.txt");
 	}
 
 	/**
@@ -111,11 +105,16 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	private function check(): void{
-		$request = new ApiRequest("/", ["version" => $this->getDescription()->getVersion()]);
-		self::sendRequest($request, function (array $data){
+		if ($this->token == "TOKEN HERE") {
+			$this->getLogger()->alert("Token is not set");
+			return;
+		}
+		self::sendRequest(new ApiRequest("/"), function (array $data){
 			if (version_compare($data["lastest-client-version"], explode("+", $this->getDescription()->getVersion())[0]) == 1) {
 				$this->getLogger()->notice("New update available. https://github.com/Cosmetic-X");
 			}
+			$this->holder = $data["holder"] ?? "n/a";
+			$this->getLogger()->notice("Logged in as {$this->holder}");
 			$this->loadCosmetics();
 		});
 	}
@@ -175,5 +174,13 @@ class CosmeticX extends PluginBase{
 			}
 		}
 		PermissionManager::getInstance()->addPermission($overlord);
+	}
+
+	/**
+	 * Function getHolder
+	 * @return string
+	 */
+	public function getHolder(): string{
+		return $this->holder;
 	}
 }
