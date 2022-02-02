@@ -36,12 +36,10 @@ abstract class Form implements \pocketmine\form\Form{
 		if ($this->onCreate !== null) {
 			($this->onCreate)();
 		}
-		$a = array_merge([
+		return array_merge([
 			"title" => $this->getTitle(),
 			"type"  => $this->getType(),
 		], $this->serializeFormData());
-		var_dump($a);
-		return $a;
 	}
 
 	/**
