@@ -85,9 +85,6 @@ final class CosmeticXCommand extends Command{
 				$sender->sendMessage("Unknown sub-command '{$subCommandName}'.");
 				return;
 			}
-			if (!is_null($subCommand->getPermission()) && !$this->testPermission($sender, $subCommand->getPermission())) {
-				return;
-			}
 			if ($subCommand instanceof PlayerSubCommand && !$sender instanceof Player) {
 				$sender->sendMessage("§cSub-command can only executed by players.");
 				return;
@@ -96,6 +93,9 @@ final class CosmeticXCommand extends Command{
 				if (Server::getInstance()->isOp($sender->getName())) {
 					$sender->sendMessage("§cSub-command can only executed in console.");
 				}
+				return;
+			}
+			if (!is_null($subCommand->getPermission()) && !$this->testPermission($sender, $this->getPermission() . "." . $subCommand->getPermission())) {
 				return;
 			}
 			try {
