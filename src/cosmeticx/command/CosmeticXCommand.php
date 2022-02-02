@@ -11,6 +11,7 @@ use cosmeticx\command\subcommand\InfoSubCommand;
 use cosmeticx\command\subcommand\ReloadSubCommand;
 use cosmeticx\CosmeticX;
 use pocketmine\command\Command;
+use pocketmine\command\CommandMap;
 use pocketmine\command\CommandSender;
 use pocketmine\console\ConsoleCommandSender;
 use pocketmine\player\Player;
@@ -26,7 +27,7 @@ use Throwable;
  * @ide PhpStorm
  * @project PocketMine-Client
  */
-class CosmeticXCommand extends Command{
+final class CosmeticXCommand extends Command{
 	/** @var SubCommand[] */
 	private array $subCommands = [], $aliasSubCommands = [];
 
@@ -97,5 +98,14 @@ class CosmeticXCommand extends Command{
 				CosmeticX::getInstance()->getLogger()->logException($throwable);
 			}
 		}
+	}
+
+	/**
+	 * Function unregister
+	 * @param CommandMap $commandMap
+	 * @return bool
+	 */
+	public function unregister(CommandMap $commandMap): bool{
+		return false; //NOTE: can't overwrite this command
 	}
 }
