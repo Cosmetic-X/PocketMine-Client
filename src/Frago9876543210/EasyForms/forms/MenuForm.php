@@ -4,21 +4,16 @@ namespace Frago9876543210\EasyForms\forms;
 use Closure;
 use Frago9876543210\EasyForms\elements\Button;
 use Frago9876543210\EasyForms\elements\FunctionalButton;
+use pocketmine\player\Player;
 use pocketmine\form\FormValidationException;
-
-use function array_merge;
-use function is_string;
 
 
 class MenuForm extends Form{
 	/** @var Button[] */
 	protected array $buttons = [];
-	/** @var string */
 	protected string $text;
-	/** @var Closure|null */
-	private ?Closure $onSubmit;
-	/** @var Closure|null */
-	private ?Closure $onClose;
+	private ?Closure $onSubmit = null;
+	private ?Closure $onClose = null;
 
 	/**
 	 * @param string $title
@@ -117,7 +112,7 @@ class MenuForm extends Form{
 	 */
 	protected function serializeFormData(): array{
 		return [
-			"buttons" => $this->buttons,
+			"buttons" => array_values($this->buttons),
 			"content" => $this->text,
 		];
 	}

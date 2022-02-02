@@ -30,9 +30,6 @@ class CustomForm extends Form{
 		$this->onSubmit = $onSubmit;
 		$this->onClose = $onClose;
 		$this->onSubmit = $onSubmit;
-		if ($onClose !== null) {
-			$this->onClose = $onClose;
-		}
 	}
 
 	/**

@@ -10,12 +10,11 @@ abstract class Form implements \pocketmine\form\Form{
 	protected const TYPE_MODAL       = "modal";
 	protected const TYPE_MENU        = "form";
 	protected const TYPE_CUSTOM_FORM = "custom_form";
-	/** @var string */
 	private string $title;
 	/** @var Closure|null */
-	private ?Closure $onCreate;
+	private ?Closure $onCreate = null;
 	/** @var Closure|null */
-	private ?Closure $onDestroy;
+	private ?Closure $onDestroy = null;
 
 	/**
 	 * @param string $title
@@ -37,10 +36,12 @@ abstract class Form implements \pocketmine\form\Form{
 		if ($this->onCreate !== null) {
 			($this->onCreate)();
 		}
-		return array_merge([
+		$a = array_merge([
 			"title" => $this->getTitle(),
 			"type"  => $this->getType(),
 		], $this->serializeFormData());
+		var_dump($a);
+		return $a;
 	}
 
 	/**

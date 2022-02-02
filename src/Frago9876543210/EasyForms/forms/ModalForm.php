@@ -9,13 +9,9 @@ use function is_bool;
 
 
 class ModalForm extends Form{
-	/** @var string */
 	protected string $text;
-	/** @var string */
 	private string $yesButton;
-	/** @var string */
 	private string $noButton;
-	/** @var Closure */
 	private Closure $onSubmit;
 
 	/**

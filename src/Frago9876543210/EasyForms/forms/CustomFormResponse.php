@@ -10,7 +10,7 @@ use function get_class;
 
 class CustomFormResponse{
 	/** @var Element[] */
-	private $elements;
+	private array $elements;
 
 	/**
 	 * @param Element[] $elements
