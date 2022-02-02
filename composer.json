@@ -1,0 +1,25 @@
+{
+    "name": "cosmetic-x/pocketmine-client",
+    "type": "project",
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^8.0",
+        "ext-curl": "*",
+		"ext-yaml": "*"
+	},
+    "require-dev": {
+        "pocketmine/pocketmine-mp": "^4",
+        "xxarox/waterdogpe-login-extra-data-fix": "dev-main"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "xxAROX",
+            "email": "arox.email.0@gmail.com"
+        }
+    ]
+}

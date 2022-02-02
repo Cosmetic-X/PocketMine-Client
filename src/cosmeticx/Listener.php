@@ -6,9 +6,13 @@
  */
 declare(strict_types=1);
 namespace cosmeticx;
+use cosmeticx\utils\Utils;
+use pocketmine\entity\Skin;
 use pocketmine\event\player\PlayerChangeSkinEvent;
 use pocketmine\event\player\PlayerCreationEvent;
+use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\player\XboxLivePlayerInfo;
 
 
 /**
@@ -31,6 +35,26 @@ class Listener implements \pocketmine\event\Listener{
 	}
 
 	/**
+	 * Function PlayerLoginEvent
+	 * @param PlayerLoginEvent $event
+	 * @return void
+	 * @priority MONITOR
+	 */
+	public function PlayerLoginEvent(PlayerLoginEvent $event): void{
+		$playerInfo = $event->getPlayer()->getPlayerInfo();
+		if (!$playerInfo instanceof XboxLivePlayerInfo) {
+			CosmeticX::getInstance()->getLogger()->emergency("Please install WD_LoginDataFix, can be download here https://github.com/xxAROX/WaterdogPE-LoginExtras-Fix/releases/download/latest/WD_LoginDataFix.phar");
+		} else {
+			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", ["skinData" => Utils::encodeSkinData($event->getPlayer()->getSkin()->getSkinData())]), function (array $data) use ($event): void{
+				$session = CosmeticManager::getInstance()->getSession($event->getPlayer());
+				$skin = $session->getHolder()->getSkin();
+				$session->getHolder()->setSkin(new Skin($skin->getSkinId(), Utils::decodeSkinData($data["buffer"]), $skin->getCapeData(), $data["geometry_name"] ?? $skin->getGeometryName(), $data["geometry_data"] ?? $skin->getGeometryData()));
+				$session->getHolder()->sendSkin();
+			});
+		}
+	}
+
+	/**
 	 * Function PlayerQuitEvent
 	 * @param PlayerQuitEvent $event
 	 * @return void
@@ -38,6 +62,17 @@ class Listener implements \pocketmine\event\Listener{
 	 */
 	public function PlayerQuitEvent(PlayerQuitEvent $event): void{
 		unset(CosmeticManager::getInstance()->legacy[$event->getPlayer()->getPlayerInfo()->getUsername()]);
+
+		$playerInfo = $event->getPlayer()->getPlayerInfo();
+		if (!$playerInfo instanceof XboxLivePlayerInfo) {
+			CosmeticX::getInstance()->getLogger()->emergency("Please install WD_LoginDataFix, can be download here https://github.com/xxAROX/WaterdogPE-LoginExtras-Fix/releases/download/latest/WD_LoginDataFix.phar");
+		} else {
+			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", [], true), function (array $data) use ($event): void{
+				var_dump($data);
+				//TODO: store player cosmetics
+				CosmeticManager::getInstance()->deleteSession($event->getPlayer()->getName());
+			});
+		}
 	}
 
 	/**

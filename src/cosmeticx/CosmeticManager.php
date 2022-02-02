@@ -7,8 +7,10 @@
 declare(strict_types=1);
 namespace cosmeticx;
 use cosmeticx\cosmetics\Cosmetic;
+use cosmeticx\cosmetics\CosmeticSession;
 use Frago9876543210\EasyForms\elements\Image;
 use pocketmine\entity\Skin;
+use pocketmine\player\Player;
 use pocketmine\utils\SingletonTrait;
 
 
@@ -25,6 +27,8 @@ class CosmeticManager{
 
 	/** @var Skin[] */
 	public array $legacy = [];
+	/** @var CosmeticSession[] */
+	private array $sessions = [];
 	/** @var Cosmetic[] */
 	private array $publicCosmetics = [];
 	/** @var Cosmetic[] */
@@ -70,6 +74,19 @@ class CosmeticManager{
 	 */
 	function registerSlotCosmetic(string $name, string $display_name, string $id, ?Image $image = null): void{
 		$this->slotCosmetics[] = new Cosmetic($name, $display_name, $id, $image, Cosmetic::SLOT);
+	}
+
+	function getSession(Player $player): CosmeticSession{
+		if (!isset($this->sessions[$player->getName()])) {
+			$this->sessions[$player->getName()] = new CosmeticSession($player);
+		}
+		return $this->sessions[$player->getName()];
+	}
+
+	function deleteSession(string $username): void{
+		if (isset($this->sessions[$username])) {
+			unset($this->sessions[$username]);
+		}
 	}
 
 	/**
