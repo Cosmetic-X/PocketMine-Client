@@ -8,7 +8,13 @@ declare(strict_types=1);
 namespace cosmeticx\command\subcommand;
 use cosmeticx\command\SubCommand;
 use cosmeticx\CosmeticX;
+use Frago9876543210\EasyForms\elements\FunctionalButton;
+use Frago9876543210\EasyForms\forms\MenuForm;
+use Frago9876543210\EasyForms\forms\PageForm;
 use pocketmine\command\CommandSender;
+use pocketmine\player\Player;
+use pocketmine\Server;
+use pocketmine\utils\TextFormat;
 
 
 /**
@@ -20,20 +26,6 @@ use pocketmine\command\CommandSender;
  * @project PocketMine-Client
  */
 class HelpSubCommand extends SubCommand{
-	protected array $help = [];
-
-	/**
-	 * HelpSubCommand constructor.
-	 * @param string $name
-	 * @param array $aliases
-	 */
-	public function __construct(string $name, array $aliases = []){
-		parent::__construct($name, $aliases);
-		foreach (CosmeticX::getInstance()->command->getSubCommands() as $_ => $subCommand) {
-			$this->help[] = "§a  /" . CosmeticX::getInstance()->command->getName() . " {$subCommand->getName()}" . (count($subCommand->getAliases()) > 0 ? " | " . implode("|", $subCommand->getAliases()) : "");
-		}
-	}
-
 	/**
 	 * Function execute
 	 * @param CommandSender $sender
@@ -41,6 +33,18 @@ class HelpSubCommand extends SubCommand{
 	 * @return void
 	 */
 	public function execute(CommandSender $sender, array $args): void{
-		$sender->sendMessage("§a--- " . CosmeticX::getInstance()->getDescription()->getName() . " - Help ---" . PHP_EOL . implode(PHP_EOL, $this->help));
+		$help = [];
+		foreach (CosmeticX::getInstance()->command->getSubCommands() as $_ => $subCommand) {
+			if (!$subCommand instanceof self) {
+				$help[] = "§a/" . CosmeticX::getInstance()->command->getName() . " {$subCommand->getName()}" . (count($subCommand->getAliases()) > 0 ? " | " . implode(" | ", $subCommand->getAliases()) : "");
+			}
+		}
+		if ($sender instanceof Player) {
+			$sender->sendForm(new MenuForm("Help", "", array_map(fn (string $str) => new FunctionalButton($cmd=TextFormat::clean($str), function (Player $player) use ($cmd): void{
+				Server::getInstance()->dispatchCommand($player, str_replace("/", "", explode(" | ", $cmd)[0]));
+			}), $help)));
+		} else {
+			$sender->sendMessage("§a--- " . CosmeticX::getInstance()->getDescription()->getName() . " - Help ---" . PHP_EOL . implode(PHP_EOL, $help));
+		}
 	}
 }

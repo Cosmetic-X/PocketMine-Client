@@ -47,13 +47,24 @@ class Utils{
 			$alpha = array_pop($color); // equivalent to 0 for imagecolorallocatealpha()
 			$alpha = ((~((int)$alpha)) & 0xff) >> 1; // back = (($alpha << 1) ^ 0xff) - 1
 			array_push($color, $alpha);
+			if (!isset($color[0])) {
+				$color = [0, 0, 0, 127];
+			} else if (!isset($color[1])) {
+				$color = array_merge($color, [0, 0, 127]);
+			} else if (!isset($color[2])) {
+				$color = array_merge($color, [0, 127]);
+			} else if (!isset($color[3])) {
+				$color = array_merge($color, [127]);
+			}
 			imagesetpixel($image, $x, $y, imagecolorallocatealpha($image, ...$color));
 			$position--;
 		}
-		@imagepng($image, CosmeticX::getInstance()->getDataFolder() . ".temp");
+		@imagepng($image, CosmeticX::getInstance()->getDataFolder() . ($uniqid=uniqid("temp_", true)) . ".temp");
 		@imagedestroy($image);
-		$image_data = file_get_contents(CosmeticX::getInstance()->getDataFolder() . ".temp");
-		unlink(CosmeticX::getInstance()->getDataFolder() . ".temp");
+		$image_data = file_get_contents(CosmeticX::getInstance()->getDataFolder() . "$uniqid.temp");
+		if (is_file(CosmeticX::getInstance()->getDataFolder() . "$uniqid.temp")) {
+			unlink(CosmeticX::getInstance()->getDataFolder() . "$uniqid.temp");
+		}
 		return base64_encode($image_data);
 	}
 

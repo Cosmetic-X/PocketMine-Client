@@ -6,10 +6,9 @@
  */
 declare(strict_types=1);
 namespace cosmeticx;
-use cosmeticx\utils\Utils;
-use pocketmine\entity\Skin;
 use pocketmine\event\player\PlayerChangeSkinEvent;
-use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerCreationEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 
 
 /**
@@ -21,14 +20,32 @@ use pocketmine\event\player\PlayerJoinEvent;
  * @project PocketMine-Client
  */
 class Listener implements \pocketmine\event\Listener{
-	public function PlayerJoinEvent(PlayerJoinEvent $event): void{
-		CosmeticX::sendRequest(new ApiRequest("/merge-skin-with-cosmetic", ["id" => "0","skinData" => Utils::encodeSkinData($event->getPlayer()->getSkin()->getSkinData())], true), function (array $data) use ($event): void{
-			$skin = $event->getPlayer()->getSkin();
-			$event->getPlayer()->setSkin(new Skin($skin->getSkinId(), Utils::decodeSkinData($data["buffer"]), $skin->getCapeData(), $data["geometry_name"] ?? $skin->getGeometryName(), $data["geometry_data"] ?? $skin->getGeometryData()));
-			$event->getPlayer()->sendSkin();
-			$event->getPlayer()->sendMessage("§9Skin changed");
-		});
+	/**
+	 * Function PlayerCreationEvent
+	 * @param PlayerCreationEvent $event
+	 * @return void
+	 * @priority MONITOR
+	 */
+	public function PlayerCreationEvent(PlayerCreationEvent $event): void{
+		CosmeticManager::getInstance()->legacy[$event->getNetworkSession()->getPlayerInfo()->getUsername()] = $event->getNetworkSession()->getPlayerInfo()->getSkin();
 	}
+
+	/**
+	 * Function PlayerQuitEvent
+	 * @param PlayerQuitEvent $event
+	 * @return void
+	 * @priority MONITOR
+	 */
+	public function PlayerQuitEvent(PlayerQuitEvent $event): void{
+		unset(CosmeticManager::getInstance()->legacy[$event->getPlayer()->getPlayerInfo()->getUsername()]);
+	}
+
+	/**
+	 * Function PlayerChangeSkinEvent
+	 * @param PlayerChangeSkinEvent $event
+	 * @return void
+	 * @priority MONITOR
+	 */
 	public function PlayerChangeSkinEvent(PlayerChangeSkinEvent $event): void{
 		$event->cancel();
 		$event->getPlayer()->sendMessage("§cSkin changing is not implemented yet.");

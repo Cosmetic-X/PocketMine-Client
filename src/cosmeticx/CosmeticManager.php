@@ -7,6 +7,8 @@
 declare(strict_types=1);
 namespace cosmeticx;
 use cosmeticx\cosmetics\Cosmetic;
+use Frago9876543210\EasyForms\elements\Image;
+use pocketmine\entity\Skin;
 use pocketmine\utils\SingletonTrait;
 
 
@@ -21,6 +23,8 @@ use pocketmine\utils\SingletonTrait;
 class CosmeticManager{
 	use SingletonTrait;
 
+	/** @var Skin[] */
+	public array $legacy = [];
 	/** @var Cosmetic[] */
 	private array $publicCosmetics = [];
 	/** @var Cosmetic[] */
@@ -49,10 +53,11 @@ class CosmeticManager{
 	 * @param string $name
 	 * @param string $display_name
 	 * @param string $id
+	 * @param null|Image $image
 	 * @return void
 	 */
-	function registerPublicCosmetics(string $name, string $display_name, string $id): void{
-		$this->publicCosmetics[$id] = new Cosmetic($name, $display_name, $id, Cosmetic::PUBLIC);
+	function registerPublicCosmetics(string $name, string $display_name, string $id, ?Image $image = null): void{
+		$this->publicCosmetics[] = new Cosmetic($name, $display_name, $id, $image, Cosmetic::PUBLIC);
 	}
 
 	/**
@@ -60,10 +65,11 @@ class CosmeticManager{
 	 * @param string $name
 	 * @param string $display_name
 	 * @param string $id
+	 * @param null|Image $image
 	 * @return void
 	 */
-	function registerSlotCosmetic(string $name, string $display_name, string $id): void{
-		$this->slotCosmetics[$id] = new Cosmetic($name, $display_name, $id, Cosmetic::SLOT);
+	function registerSlotCosmetic(string $name, string $display_name, string $id, ?Image $image = null): void{
+		$this->slotCosmetics[] = new Cosmetic($name, $display_name, $id, $image, Cosmetic::SLOT);
 	}
 
 	/**

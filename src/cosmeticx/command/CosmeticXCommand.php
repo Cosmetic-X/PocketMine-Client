@@ -6,9 +6,12 @@
  */
 declare(strict_types=1);
 namespace cosmeticx\command;
+use cosmeticx\command\subcommand\EncodeSubCommand;
 use cosmeticx\command\subcommand\HelpSubCommand;
 use cosmeticx\command\subcommand\InfoSubCommand;
+use cosmeticx\command\subcommand\MenuSubCommand;
 use cosmeticx\command\subcommand\ReloadSubCommand;
+use cosmeticx\command\subcommand\SlotCosmeticsMenuSubCommand;
 use cosmeticx\CosmeticX;
 use pocketmine\command\Command;
 use pocketmine\command\CommandMap;
@@ -37,8 +40,12 @@ final class CosmeticXCommand extends Command{
 	public function __construct(){
 		parent::__construct("cosmeticx", "Cosmetic-X command", "§cUsage: §7/cosmeticx help", ["cx"]);
 		$this->setPermission("cosmetic-x.command");
+		$this->loadSubCommand(new HelpSubCommand("help", ["?"]));
 		$this->loadSubCommand(new InfoSubCommand("info", ["i"]));
 		$this->loadSubCommand(new ReloadSubCommand("reload", ["rl"]));
+		$this->loadSubCommand(new MenuSubCommand("menu", ["public"]));
+		$this->loadSubCommand(new SlotCosmeticsMenuSubCommand("slot-cosmetics", ["slot", "sc"]));
+		$this->loadSubCommand(new EncodeSubCommand("encode"));
 	}
 
 	/**

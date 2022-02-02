@@ -8,8 +8,8 @@
 namespace cosmeticx;
 use Closure;
 use cosmeticx\command\CosmeticXCommand;
-use cosmeticx\command\subcommand\HelpSubCommand;
 use cosmeticx\task\async\SendRequestAsyncTask;
+use Frago9876543210\EasyForms\elements\Image;
 use Phar;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
@@ -40,6 +40,8 @@ class CosmeticX extends PluginBase{
 	private string $token = "TOKEN HERE";
 	private string $holder = "n/a";
 	public CosmeticXCommand $command;
+	/** @var Permission[] */
+	public array $permissions = [];
 
 	/**
 	 * CosmeticX constructor.
@@ -55,8 +57,6 @@ class CosmeticX extends PluginBase{
 		parent::__construct($loader, $server, $description, $dataFolder, $file, $resourceProvider);
 		self::setInstance($this);
 		PermissionManager::getInstance()->addPermission(new Permission("cosmetic-x.command", "Allows to use the '/cosmeticx' command."));
-		$this->command = new CosmeticXCommand();
-		$this->command->loadSubCommand(new HelpSubCommand("help", ["?"]));
 	}
 
 	/**
@@ -83,13 +83,15 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	protected function onEnable(): void{
-		$this->registerPermissions();
 		$this->getServer()->getPluginManager()->registerEvents(new Listener(), $this);
-		$this->getServer()->getCommandMap()->register("cosmeticx", $this->command);
+		$this->getServer()->getCommandMap()->register("cosmeticx", $this->command = new CosmeticXCommand());
+		$this->registerPermissions();
 		$this->check();
 	}
 
 	public function reload(): void{
+		CosmeticManager::getInstance()->resetPublicCosmetics();
+		CosmeticManager::getInstance()->resetSlotCosmetics();
 		$this->reloadConfig();
 		CosmeticX::$PROTOCOL = $this->getConfig()->get("protocol", CosmeticX::$PROTOCOL);
 		CosmeticX::$URL = $this->getConfig()->get("host", CosmeticX::$URL);
@@ -128,11 +130,10 @@ class CosmeticX extends PluginBase{
 		self::sendRequest($request, function (array $data){
 			foreach ($data as $where => $objs) {
 				foreach ($objs as $obj) {
-					var_dump($obj);
 					if ($where === "public") {
-						CosmeticManager::getInstance()->registerPublicCosmetics($obj["id"], $obj["display_name"], $obj["name"]);
+						CosmeticManager::getInstance()->registerPublicCosmetics($obj["name"], $obj["display_name"], $obj["id"], (isset($obj["image"]) ? new Image($obj["image"], str_starts_with($obj["image"], "http") ? Image::TYPE_URL : Image::TYPE_PATH) : null));
 					} else if ($where === "slot") {
-						CosmeticManager::getInstance()->registerSlotCosmetic($obj["id"], $obj["display_name"], $obj["name"]);
+						CosmeticManager::getInstance()->registerSlotCosmetic($obj["name"], $obj["display_name"], $obj["id"], (isset($obj["image"]) ? new Image($obj["image"], str_starts_with($obj["image"], "http") ? Image::TYPE_URL : Image::TYPE_PATH) : null));
 					}
 				}
 			}
@@ -165,11 +166,13 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	private function registerPermissions(): void{
+		unset($this->permissions);
+		$this->permissions = [];
 		$overlord = new Permission("cosmetic-x.*", "Overlord permission");
 		foreach ($this->command->getSubCommands() as $subCommand) {
 			if (!is_null($subCommand->getPermission())) {
 				$permission = $this->command->getPermission() . "." . $subCommand->getPermission();
-				PermissionManager::getInstance()->addPermission(new Permission($permission, "Allows to use the '/{$this->command->getName()} {$subCommand->getName()}' command."));
+				PermissionManager::getInstance()->addPermission($this->permissions[] = new Permission($permission, "Allows to use the '/{$this->command->getName()} {$subCommand->getName()}' command."));
 				$overlord->addChild($permission, true);
 			}
 		}

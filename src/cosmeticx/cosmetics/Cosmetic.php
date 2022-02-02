@@ -6,6 +6,7 @@
  */
 declare(strict_types=1);
 namespace cosmeticx\cosmetics;
+use Frago9876543210\EasyForms\elements\Image;
 use Ramsey\Uuid\Uuid;
 
 
@@ -20,23 +21,35 @@ use Ramsey\Uuid\Uuid;
 class Cosmetic{
 	const PUBLIC = 0;
 	const SLOT   = 1;
+
+	private string $id;
 	private string $name;
 	private string $display_name;
+	private ?Image $image;
 	private bool $public;
-	private string $id;
 
 	/**
 	 * Cosmetic constructor.
 	 * @param string $name
 	 * @param string $display_name
 	 * @param null|string $id
+	 * @param null|Image $image
 	 * @param int $type
 	 */
-	public function __construct(string $name, string $display_name, string $id = null, int $type = self::PUBLIC){
+	public function __construct(string $name, string $display_name, string $id = null, ?Image $image = null, int $type = self::PUBLIC){
+		$this->id = $id ?? Uuid::uuid4()->toString();
 		$this->name = $name;
 		$this->display_name = $display_name;
+		$this->image = $image;
 		$this->public = $type == self::PUBLIC;
-		$this->id = $id ?? Uuid::uuid4()->toString();
+	}
+
+	/**
+	 * Function getId
+	 * @return string
+	 */
+	public function getId(): string{
+		return $this->id;
 	}
 
 	/**
@@ -56,6 +69,14 @@ class Cosmetic{
 	}
 
 	/**
+	 * Function getImage
+	 * @return ?Image
+	 */
+	public function getImage(): ?Image{
+		return $this->image;
+	}
+
+	/**
 	 * Function isPublic
 	 * @return bool
 	 */
@@ -69,13 +90,5 @@ class Cosmetic{
 	 */
 	public function isSlot(): bool{
 		return !$this->public;
-	}
-
-	/**
-	 * Function getId
-	 * @return string
-	 */
-	public function getId(): string{
-		return $this->id;
 	}
 }
