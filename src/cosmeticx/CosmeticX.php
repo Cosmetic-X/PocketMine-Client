@@ -22,6 +22,8 @@ use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
+use React\Promise\Deferred;
+use React\Promise\Promise;
 
 
 /**
