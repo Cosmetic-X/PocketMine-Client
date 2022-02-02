@@ -95,6 +95,17 @@ class CosmeticX extends PluginBase{
 		$this->check();
 	}
 
+	public function reload(): void{
+		$this->reloadConfig();
+		CosmeticX::$PROTOCOL = $this->getConfig()->get("protocol", CosmeticX::$PROTOCOL);
+		CosmeticX::$URL = $this->getConfig()->get("host", CosmeticX::$URL);
+		$port = $this->getConfig()->get("port", "");
+		CosmeticX::$URL_API = CosmeticX::$PROTOCOL . "://" . CosmeticX::$URL . (!empty($port) ? ":$port" : "") . "/api";
+		$this->token = file_get_contents($this->getDataFolder() . "TOKEN.txt");
+		$this->getLogger()->notice("Reloaded config");
+		$this->check();
+	}
+
 	/**
 	 * Function check
 	 * @return void
