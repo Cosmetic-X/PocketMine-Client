@@ -26,6 +26,7 @@ jobs:
         run: |
           echo ::set-output name=API::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.API.txt");')
           echo ::set-output name=VERSION::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.VERSION.txt");')
+          echo ::set-output name=FULL_VERSION::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FULL_VERSION.txt");')
           echo ::set-output name=FILE_NAME::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FILE_NAME.txt");')
           echo ::set-output name=FOLDER::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FOLDER.txt");')
 

@@ -31,6 +31,7 @@ if (is_file($from . "README.md")) {
 if (is_dir($from . "resources")) {
 	copyDirectory($from . "resources", $to . "resources");
 }
+copyDirectory($from . "vendor/react/promise/src", $to . "src/React/Promise");
 yaml_emit_file($to . "plugin.yml", $description);
 // Defining output path...
 @unlink($outputPath . ".phar");
@@ -41,6 +42,9 @@ if($IS_GITHUB_ACTIONS){
 	if (file_exists($VERSION = $from . "out" . DIRECTORY_SEPARATOR . ".VERSION.txt")) {
 		unlink($VERSION);
 	}
+	if (file_exists($FULL_VERSION = $from . "out" . DIRECTORY_SEPARATOR . ".FULL_VERSION.txt")) {
+		unlink($FULL_VERSION);
+	}
 	if (file_exists($FILE_NAME = $from . "out" . DIRECTORY_SEPARATOR . ".FILE_NAME.txt")) {
 		unlink($FILE_NAME);
 	}
@@ -48,7 +52,8 @@ if($IS_GITHUB_ACTIONS){
 		unlink($FOLDER);
 	}
 	file_put_contents($API, (is_array($description["api"]) ? explode(".", $description["api"][0])[0] : (is_string($description["api"]) ? explode(".", $description["api"])[0] : "???")), 0777);
-	file_put_contents($VERSION, $description["version"], 0777);
+	file_put_contents($FULL_VERSION, $description["version"], 0777);
+	file_put_contents($VERSION, explode("+", $description["version"])[0], 0777);
 	file_put_contents($FILE_NAME, $outputPath, 0777);
 	file_put_contents($FOLDER, $to, 0777);
 }
