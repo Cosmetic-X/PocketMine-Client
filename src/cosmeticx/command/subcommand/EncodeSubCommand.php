@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 namespace cosmeticx\command\subcommand;
-use cosmeticx\command\ConsoleSubCommand;
+use cosmeticx\command\SubCommand;
 use cosmeticx\CosmeticX;
 use pocketmine\command\CommandSender;
 
@@ -20,7 +20,7 @@ use pocketmine\command\CommandSender;
  * @ide PhpStorm
  * @project PocketMine-Client
  */
-class EncodeSubCommand extends ConsoleSubCommand{
+class EncodeSubCommand extends SubCommand{
 	public function __construct(string $name, array $aliases = []){
 		parent::__construct($name, $aliases);
 		$this->setPermission("encode");

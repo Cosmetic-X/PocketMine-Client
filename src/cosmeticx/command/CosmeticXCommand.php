@@ -10,6 +10,7 @@ use cosmeticx\command\subcommand\EncodeSubCommand;
 use cosmeticx\command\subcommand\HelpSubCommand;
 use cosmeticx\command\subcommand\InfoSubCommand;
 use cosmeticx\command\subcommand\MenuSubCommand;
+use cosmeticx\command\subcommand\PermissionsSubCommand;
 use cosmeticx\command\subcommand\ReloadSubCommand;
 use cosmeticx\command\subcommand\SlotCosmeticsMenuSubCommand;
 use cosmeticx\CosmeticX;
@@ -46,6 +47,7 @@ final class CosmeticXCommand extends Command{
 		$this->loadSubCommand(new MenuSubCommand("menu", ["public"]));
 		$this->loadSubCommand(new SlotCosmeticsMenuSubCommand("slot-cosmetics", ["slot", "sc"]));
 		$this->loadSubCommand(new EncodeSubCommand("encode"));
+		$this->loadSubCommand(new PermissionsSubCommand("permissions", ["perms"]));
 	}
 
 	/**

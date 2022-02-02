@@ -18,6 +18,8 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\plugin\PluginDescription;
 use pocketmine\plugin\PluginLoader;
 use pocketmine\plugin\ResourceProvider;
+use pocketmine\scheduler\ClosureTask;
+use pocketmine\scheduler\TaskHandler;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
 
@@ -40,9 +42,10 @@ class CosmeticX extends PluginBase{
 
 	private string $token = "TOKEN HERE";
 	private string $holder = "n/a";
-	public CosmeticXCommand $command;
+	private CosmeticXCommand $command;
+	public ?TaskHandler $refresh_interval = null;
 	/** @var Permission[] */
-	public array $permissions = [];
+	private array $permissions = [];
 
 	/**
 	 * CosmeticX constructor.
@@ -88,11 +91,16 @@ class CosmeticX extends PluginBase{
 		$this->getServer()->getCommandMap()->register("cosmeticx", $this->command = new CosmeticXCommand());
 		$this->registerPermissions();
 		$this->check();
+		$this->refresh_interval = $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(fn () => $this->refresh()), $this->getConfig()->get("refresh-interval", 300));
 	}
 
 	public function reload(): void{
 		CosmeticManager::getInstance()->resetPublicCosmetics();
 		CosmeticManager::getInstance()->resetSlotCosmetics();
+		if (!is_null($this->refresh_interval)) {
+			$this->refresh_interval->cancel();
+			$this->refresh_interval = $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(fn () => $this->refresh()), $this->getConfig()->get("refresh-interval", 300));
+		}
 		$this->reloadConfig();
 		CosmeticX::$PROTOCOL = $this->getConfig()->get("protocol", CosmeticX::$PROTOCOL);
 		CosmeticX::$URL = $this->getConfig()->get("host", CosmeticX::$URL);
@@ -101,6 +109,13 @@ class CosmeticX extends PluginBase{
 		$this->token = file_get_contents($this->getDataFolder() . "TOKEN.txt");
 		$this->getLogger()->notice("Reloaded config");
 		$this->check();
+	}
+
+	private function refresh(): void{
+		CosmeticManager::getInstance()->resetPublicCosmetics();
+		CosmeticManager::getInstance()->resetSlotCosmetics();
+		$this->getLogger()->debug("Refreshed cosmetics");
+		$this->loadCosmetics();
 	}
 
 	/**
@@ -190,5 +205,21 @@ class CosmeticX extends PluginBase{
 	 */
 	public function getHolder(): string{
 		return $this->holder;
+	}
+
+	/**
+	 * Function getCosmeticXCommand
+	 * @return CosmeticXCommand
+	 */
+	public function getCosmeticXCommand(): CosmeticXCommand{
+		return $this->command;
+	}
+
+	/**
+	 * Function getPermissions
+	 * @return Permission[]
+	 */
+	public function getPermissions(): array{
+		return $this->permissions;
 	}
 }
