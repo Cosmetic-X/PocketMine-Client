@@ -31,7 +31,7 @@ if (is_file($from . "README.md")) {
 if (is_dir($from . "resources")) {
 	copyDirectory($from . "resources", $to . "resources");
 }
-copyDirectory($from . "vendor/react/promise/src", $to . "src/React/Promise");
+//copyDirectory($from . "vendor/<PACKAGE>/src", $to . "src/<NAMESPACE>");
 yaml_emit_file($to . "plugin.yml", $description);
 // Defining output path...
 @unlink($outputPath . ".phar");
