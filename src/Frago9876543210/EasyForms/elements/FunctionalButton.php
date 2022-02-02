@@ -1,11 +1,12 @@
 <?php
 /*
- * Copyright (c) 2021-2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * This plugin is under GPL license
  */
 namespace Frago9876543210\EasyForms\elements;
 use Closure;
+use pocketmine\player\Player;
 
 
 /**
