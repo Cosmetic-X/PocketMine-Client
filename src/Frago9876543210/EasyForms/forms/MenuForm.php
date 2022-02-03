@@ -4,8 +4,8 @@ namespace Frago9876543210\EasyForms\forms;
 use Closure;
 use Frago9876543210\EasyForms\elements\Button;
 use Frago9876543210\EasyForms\elements\FunctionalButton;
-use pocketmine\player\Player;
 use pocketmine\form\FormValidationException;
+use pocketmine\player\Player;
 
 
 class MenuForm extends Form{
@@ -25,22 +25,17 @@ class MenuForm extends Form{
 	public function __construct(string $title, string $text = "", array $buttons = [], ?Closure $onSubmit = null, ?Closure $onClose = null){
 		parent::__construct($title);
 		$this->text = $text;
-		$this->append(...$buttons);
+		foreach ($buttons as $k => $button) {
+			if (is_null($button)) {
+				unset($this->buttons[$k]);
+			} else if (is_string($button)) {
+				$this->buttons[] = new Button($button);
+			} else if ($button instanceof Button) {
+				$this->buttons[] = $button;
+			}
+		}
 		$this->setOnSubmit($onSubmit);
 		$this->setOnClose($onClose);
-	}
-
-	/**
-	 * @param FunctionalButton|Button|string ...$buttons
-	 *
-	 * @return self
-	 */
-	public function append(...$buttons): self{
-		if (isset($buttons[0]) && is_string($buttons[0])) {
-			$buttons = Button::createFromList(...$buttons);
-		}
-		$this->buttons = array_merge($this->buttons, $buttons);
-		return $this;
 	}
 
 	/**

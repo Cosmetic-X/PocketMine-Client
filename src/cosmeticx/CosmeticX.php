@@ -8,10 +8,6 @@
 namespace cosmeticx;
 use Closure;
 use cosmeticx\command\CosmeticXCommand;
-use cosmeticx\listener\PlayerChangeSkinListener;
-use cosmeticx\listener\PlayerCreationListener;
-use cosmeticx\listener\PlayerLoginListener;
-use cosmeticx\listener\PlayerQuitListener;
 use cosmeticx\task\async\SendRequestAsyncTask;
 use Frago9876543210\EasyForms\elements\Image;
 use Phar;
@@ -26,9 +22,6 @@ use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
-use pocketmine\utils\TextFormat;
-use React\Promise\Deferred;
-use React\Promise\Promise;
 
 
 /**
@@ -42,7 +35,6 @@ use React\Promise\Promise;
 class CosmeticX extends PluginBase{
 	use SingletonTrait;
 
-	public const PREFIX = TextFormat::DARK_PURPLE.TextFormat::BOLD."Cosmetic".TextFormat::WHITE."X ".TextFormat::RESET;
 
 	private static string $PROTOCOL = "https";
 	private static string $URL = "cosmetic-x.be";
@@ -95,30 +87,23 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	protected function onEnable(): void{
-	    $this->initListener();
+		$this->getServer()->getPluginManager()->registerEvents(new Listener(), $this);
 		$this->getServer()->getCommandMap()->register("cosmeticx", $this->command = new CosmeticXCommand());
 		$this->registerPermissions();
+		$this->getScheduler()->scheduleDelayedTask(new ClosureTask(fn () => $this->refresh_interval = $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(fn () => $this->refresh()), $this->getConfig()->get("refresh-interval", 300) * 20)), $this->getConfig()->get("refresh-interval", 300) * 20);
 		$this->check();
-		$this->refresh_interval = $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(fn () => $this->refresh()), $this->getConfig()->get("refresh-interval", 300));
 	}
 
-	protected function initListener(): void{
-	    $listeners = [ //we can use LoadDirectoryUtil from RyZerBE? maybe we will see! ;)
-	        new PlayerChangeSkinListener(),
-            new PlayerCreationListener(),
-            new PlayerLoginListener(),
-            new PlayerQuitListener()
-        ];
-
-	    foreach($listeners as $listener) Server::getInstance()->getPluginManager()->registerEvents($listener, $this);
-    }
-
+	/**
+	 * Function reload
+	 * @return void
+	 */
 	public function reload(): void{
 		CosmeticManager::getInstance()->resetPublicCosmetics();
 		CosmeticManager::getInstance()->resetSlotCosmetics();
 		if (!is_null($this->refresh_interval)) {
 			$this->refresh_interval->cancel();
-			$this->refresh_interval = $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(fn () => $this->refresh()), $this->getConfig()->get("refresh-interval", 300));
+			$this->getScheduler()->scheduleDelayedTask(new ClosureTask(fn () => $this->refresh_interval = $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(fn () => $this->refresh()), $this->getConfig()->get("refresh-interval", 300) * 20)), $this->getConfig()->get("refresh-interval", 300) * 20);
 		}
 		$this->reloadConfig();
 		CosmeticX::$PROTOCOL = $this->getConfig()->get("protocol", CosmeticX::$PROTOCOL);
@@ -130,6 +115,10 @@ class CosmeticX extends PluginBase{
 		$this->check();
 	}
 
+	/**
+	 * Function refresh
+	 * @return void
+	 */
 	private function refresh(): void{
 		CosmeticManager::getInstance()->resetPublicCosmetics();
 		CosmeticManager::getInstance()->resetSlotCosmetics();
@@ -143,17 +132,21 @@ class CosmeticX extends PluginBase{
 	 */
 	private function check(): void{
 		if ($this->token == "TOKEN HERE") {
-			$this->getLogger()->alert("Token is not set");
+			$this->getLogger()->alert("Token is not set, type '/" . $this->command->getName() . " reload' if set.");
 			return;
 		}
 		self::sendRequest(new ApiRequest("/"), function (array $data){
 			if (version_compare($data["lastest-client-version"], explode("+", $this->getDescription()->getVersion())[0]) == 1) {
 				$this->getLogger()->notice("New update available. https://github.com/Cosmetic-X");
-				//todo: auto update function
+				//TODO: auto update function
 			}
 			$this->holder = $data["holder"] ?? "n/a";
-			$this->getLogger()->notice("Logged in as {$this->holder}");
-			$this->loadCosmetics();
+			if ($this->holder == "n/a") {
+				$this->getLogger()->alert("Token is not valid.");
+			} else {
+				$this->getLogger()->notice("Logged in as {$this->holder}");
+				$this->loadCosmetics();
+			}
 		});
 	}
 

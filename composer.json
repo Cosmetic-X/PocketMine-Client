@@ -5,8 +5,10 @@
     "require": {
         "php": "^8.0",
         "ext-curl": "*",
-		"ext-yaml": "*"
-	},
+		"ext-yaml": "*",
+		"ext-gd": "*",
+        "ext-mbstring": "*"
+    },
     "require-dev": {
         "pocketmine/pocketmine-mp": "^4",
         "xxarox/waterdogpe-login-extra-data-fix": "dev-main"

@@ -7,7 +7,11 @@
 
 declare(strict_types=1);
 namespace cosmeticx\utils;
+use Ahc\Json\Comment;
 use cosmeticx\CosmeticX;
+use GlobalLogger;
+use pocketmine\player\PlayerInfo;
+use pocketmine\player\XboxLivePlayerInfo;
 
 
 /**
@@ -88,5 +92,31 @@ class Utils{
 		}
 		@imagedestroy($image);
 		return $bytes;
+	}
+
+	/**
+	 * Function checkForXuid
+	 * @param PlayerInfo $playerInfo
+	 * @return bool
+	 */
+	static function checkForXuid(PlayerInfo $playerInfo): bool{
+		if (!($found = $playerInfo instanceof XboxLivePlayerInfo)) {
+			GlobalLogger::get()->warning("No XUID found, please enable XBOX-Live auth");
+			GlobalLogger::get()->warning("If you are using WaterdogPE, then please install WD_LoginDataFix, can be download here https://github.com/xxAROX/WaterdogPE-LoginExtras-Fix/releases/download/latest/WD_LoginDataFix.phar");
+		}
+		return $found;
+	}
+
+	/**
+	 * Function json_decode
+	 * @param string $json
+	 * @param false $assoc
+	 * @param int $depth
+	 * @param int $flags
+	 * @return mixed
+	 */
+	static function json_decode(string $json, bool $assoc = false, int $depth = 512, int $flags = 0): mixed{
+		return Comment::parse($json, $assoc, $depth, $flags);
+		//return json_decode(preg_replace("#(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|([\s\t]//.*)|(^//.*)#", '', $json), $assoc, $depth, $flags);
 	}
 }
