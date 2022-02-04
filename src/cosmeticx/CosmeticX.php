@@ -8,6 +8,10 @@
 namespace cosmeticx;
 use Closure;
 use cosmeticx\command\CosmeticXCommand;
+use cosmeticx\listener\PlayerChangeSkinListener;
+use cosmeticx\listener\PlayerCreationListener;
+use cosmeticx\listener\PlayerLoginListener;
+use cosmeticx\listener\PlayerQuitListener;
 use cosmeticx\task\async\SendRequestAsyncTask;
 use Frago9876543210\EasyForms\elements\Image;
 use Phar;
@@ -22,6 +26,7 @@ use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
+use pocketmine\utils\TextFormat;
 use React\Promise\Deferred;
 use React\Promise\Promise;
 
@@ -37,6 +42,7 @@ use React\Promise\Promise;
 class CosmeticX extends PluginBase{
 	use SingletonTrait;
 
+	public const PREFIX = TextFormat::DARK_PURPLE.TextFormat::BOLD."Cosmetic".TextFormat::WHITE."X ".TextFormat::RESET;
 
 	private static string $PROTOCOL = "https";
 	private static string $URL = "cosmetic-x.be";
@@ -89,12 +95,23 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	protected function onEnable(): void{
-		$this->getServer()->getPluginManager()->registerEvents(new Listener(), $this);
+	    $this->initListener();
 		$this->getServer()->getCommandMap()->register("cosmeticx", $this->command = new CosmeticXCommand());
 		$this->registerPermissions();
 		$this->check();
 		$this->refresh_interval = $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(fn () => $this->refresh()), $this->getConfig()->get("refresh-interval", 300));
 	}
+
+	protected function initListener(): void{
+	    $listeners = [ //we can use LoadDirectoryUtil from RyZerBE? maybe we will see! ;)
+	        new PlayerChangeSkinListener(),
+            new PlayerCreationListener(),
+            new PlayerLoginListener(),
+            new PlayerQuitListener()
+        ];
+
+	    foreach($listeners as $listener) Server::getInstance()->getPluginManager()->registerEvents($listener, $this);
+    }
 
 	public function reload(): void{
 		CosmeticManager::getInstance()->resetPublicCosmetics();
@@ -132,6 +149,7 @@ class CosmeticX extends PluginBase{
 		self::sendRequest(new ApiRequest("/"), function (array $data){
 			if (version_compare($data["lastest-client-version"], explode("+", $this->getDescription()->getVersion())[0]) == 1) {
 				$this->getLogger()->notice("New update available. https://github.com/Cosmetic-X");
+				//todo: auto update function
 			}
 			$this->holder = $data["holder"] ?? "n/a";
 			$this->getLogger()->notice("Logged in as {$this->holder}");
