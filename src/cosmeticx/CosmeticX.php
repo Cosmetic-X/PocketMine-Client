@@ -149,9 +149,7 @@ class CosmeticX extends PluginBase{
 		self::sendRequest(new ApiRequest("/"), function (array $data){
 			if (version_compare($data["lastest-client-version"], explode("+", $this->getDescription()->getVersion())[0]) == 1) {
 				$this->getLogger()->notice("New update available. https://github.com/Cosmetic-X");
-				if($this->getConfig()->get("auto-update", true)) {
-                    //todo: auto update cosmetic x client
-                }
+				//todo: auto update function
 			}
 			$this->holder = $data["holder"] ?? "n/a";
 			$this->getLogger()->notice("Logged in as {$this->holder}");

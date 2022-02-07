@@ -37,7 +37,7 @@ class BasicForms{
 	 */
 	function sendPublicCosmeticsForm(Player $player): void{
 		$player->sendForm(new MenuForm(
-			CosmeticX::PREFIX,
+			"Cosmetic-X",
 			(count(CosmeticManager::getInstance()->getPublicCosmetics()) == 0) ? "§cNo cosmetics found" : "",
 			array_merge(($player->getSkin()->getSkinData() != (isset(CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]) ? CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]->getSkinData() : "JIC") ? [new FunctionalButton("§cReset Skin", function (Player $player): void{
 					$player->setSkin(CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]);
@@ -61,7 +61,7 @@ class BasicForms{
 	 */
 	function sendSlotCosmeticsForm(Player $player): void{
 		$player->sendForm(new MenuForm(
-            CosmeticX::PREFIX,
+			"Cosmetic-X",
 			(count(CosmeticManager::getInstance()->getSlotCosmetics()) == 0) ? "§cNo cosmetics found" : "",
 			array_merge(($player->getSkin()->getSkinData() != (isset(CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]) ? CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]->getSkinData() : "JIC") ? [new FunctionalButton("§cReset Skin", function (Player $player): void{
 					$player->setSkin(CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]);

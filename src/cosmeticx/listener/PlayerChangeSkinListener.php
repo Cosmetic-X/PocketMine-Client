@@ -2,10 +2,8 @@
 
 namespace cosmeticx\listener;
 
-use cosmeticx\CosmeticX;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChangeSkinEvent;
-use pocketmine\utils\TextFormat;
 
 class PlayerChangeSkinListener implements Listener {
 
@@ -17,6 +15,6 @@ class PlayerChangeSkinListener implements Listener {
      */
     public function PlayerChangeSkinEvent(PlayerChangeSkinEvent $event): void{
         $event->cancel();
-        $event->getPlayer()->sendMessage(CosmeticX::PREFIX.TextFormat::RED."Skin changing is not implemented yet.");
+        $event->getPlayer()->sendMessage("§cSkin changing is not implemented yet.");
     }
 }
