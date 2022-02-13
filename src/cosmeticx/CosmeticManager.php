@@ -24,11 +24,6 @@ use pocketmine\utils\SingletonTrait;
 class CosmeticManager{
 	use SingletonTrait;
 
-	/**
-	 * @var Skin[]
-	 * @deprecated
-	 */
-	public array $legacy = [];
 	/** @var CosmeticSession[] */
 	private array $sessions = [];
 	/** @var Cosmetic[] */

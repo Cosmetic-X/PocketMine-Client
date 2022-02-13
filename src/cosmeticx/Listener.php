@@ -65,7 +65,6 @@ class Listener implements \pocketmine\event\Listener{
 	 * @priority MONITOR
 	 */
 	public function PlayerQuitEvent(PlayerQuitEvent $event): void{
-		unset(CosmeticManager::getInstance()->legacy[$event->getPlayer()->getPlayerInfo()->getUsername()]);
 		if (Utils::checkForXuid($playerInfo = $event->getPlayer()->getPlayerInfo())) {
 			$session = CosmeticManager::getInstance()->getSession($event->getPlayer()->getName());
 			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", [
