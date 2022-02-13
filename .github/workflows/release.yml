@@ -1,44 +1,39 @@
-name: "Create Release"
+name: "Stable release"
 on:
   push:
     branches: ["main"]
 
-env:
-  IS_GITHUB_ACTIONS: true
-
 jobs:
-  build:
+  release:
     if: "startsWith(github.event.head_commit.message, 'Release ')"
+    name: "Create stable release"
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
 
-      - name: Setup PHP
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP 8.0
         uses: shivammathur/setup-php@2.12.0
         with:
           php-version: 8.0
 
-      - name: "Build phar"
-        run: "php -dphar.readonly=0 build.php"
-
       - name: "Get data"
         id: metadata
         run: |
-          echo ::set-output name=API::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.API.txt");')
-          echo ::set-output name=VERSION::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.VERSION.txt");')
-          echo ::set-output name=FULL_VERSION::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FULL_VERSION.txt");')
-          echo ::set-output name=FILE_NAME::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FILE_NAME.txt");')
-          echo ::set-output name=FOLDER::$(php -r 'echo file_get_contents(getcwd() . DIRECTORY_SEPARATOR . "out/.FOLDER.txt");')
+          echo ::set-output name=VERSION::$(php -r 'echo explode("+", explode("-", yaml_parse_file(getcwd() . DIRECTORY_SEPARATOR . "plugin.yml")["version"])[0])[0];')
+          echo ::set-output name=FULL_VERSION::$(php -r 'echo yaml_parse_file(getcwd() . DIRECTORY_SEPARATOR .                                "plugin.yml")["version"];')
+          echo ::set-output name=NAME::$(php -r 'echo yaml_parse_file(getcwd() . DIRECTORY_SEPARATOR .                                                 "plugin.yml")["name"];')
 
-      - name: "Build source"
-        run: "zip -r ${{ steps.metadata.outputs.FILE_NAME }}.zip ${{ steps.metadata.outputs.FOLDER }}/*"
+      - name: "Build phar"
+        run: "php -dphar.readonly=0 build.php"
 
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: "Create Release"
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "v${{ steps.metadata.outputs.VERSION }}"
           prerelease: false
           title: "Release v${{ steps.metadata.outputs.VERSION }}"
           files: |
-            ${{ steps.metadata.outputs.FILE_NAME }}.phar
-            ${{ steps.metadata.outputs.FILE_NAME }}.zip
+            out/*.phar
