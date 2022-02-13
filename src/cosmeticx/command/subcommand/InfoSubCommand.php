@@ -9,6 +9,7 @@ namespace cosmeticx\command\subcommand;
 use cosmeticx\command\SubCommand;
 use cosmeticx\CosmeticX;
 use pocketmine\command\CommandSender;
+use pocketmine\Server;
 
 
 /**
@@ -23,6 +24,7 @@ class InfoSubCommand extends SubCommand{
 	public function execute(CommandSender $sender, array $args): void{
 		$desc = CosmeticX::getInstance()->getDescription();
 		$sender->sendMessage("----- " . $desc->getName() . " -----");
+		$sender->sendMessage("  Software: " . Server::getInstance()->getName());
 		$sender->sendMessage("  Token-Owner: " . CosmeticX::getInstance()->getHolder());
 		$sender->sendMessage("  Version: " . $desc->getVersion());
 		$sender->sendMessage("  Description: " . $desc->getDescription());
