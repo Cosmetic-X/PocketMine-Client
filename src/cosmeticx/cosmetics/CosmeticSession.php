@@ -4,13 +4,13 @@
  * All rights reserved.
  * This plugin is under GPL license
  */
-
 declare(strict_types=1);
 namespace cosmeticx\cosmetics;
 use cosmeticx\ApiRequest;
 use cosmeticx\CosmeticX;
 use cosmeticx\utils\Utils;
 use JetBrains\PhpStorm\Pure;
+use JsonException;
 use pocketmine\entity\Skin;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -28,7 +28,6 @@ final class CosmeticSession{
 	protected string $username;
 	private Skin $legacySkin;
 	protected ?Player $holder = null;
-
 	/** @var string[] */
 	private array $activeCosmetics = [];
 
@@ -59,13 +58,13 @@ final class CosmeticSession{
 	public function activateCosmetic(Cosmetic $cosmetic): void{
 		if (!in_array($cosmetic->getId(), $this->activeCosmetics)) {
 			$this->activeCosmetics[] = $cosmetic->getId();
-			CosmeticX::sendRequest(new ApiRequest("/cosmetic/remove", ["id" => $cosmetic->getId(),"skinData" => Utils::encodeSkinData($this->getHolder()->getSkin()->getSkinData())], true), function (array $data): void{
-				$skin = $this->getHolder()->getSkin();
-				if (!empty($data["geometries"])) {
-					//TODO: $data["geometry_data"] = json_encode(array_merge([Utils::json_decode($skin->getGeometryData()), array_merge(...$data["geometries"] ?? [])]));
-				}
-				$this->getHolder()->setSkin(new Skin($skin->getSkinId(), Utils::decodeSkinData($data["buffer"]), $skin->getCapeData(), $data["geometry_name"] ?? $skin->getGeometryName(), $data["geometry_data"] ?? $skin->getGeometryData()));
-				$this->getHolder()->sendSkin();
+			CosmeticX::sendRequest(new ApiRequest("/cosmetic/activate", [
+				"id"           => $cosmetic->getId(),
+				"skinData"     => Utils::encodeSkinData($this->getHolder()->getSkin()->getSkinData()),
+				"geometry_name" => $this->getHolder()->getSkin()->getGeometryName(),
+				"geometry_data" => $this->getHolder()->getSkin()->getGeometryData(),
+			], true), function (array $data): void{
+				$this->sendSkin($data["buffer"], $data["geometry_name"], $data["geometry_data"]);
 			});
 		}
 	}
@@ -80,17 +79,27 @@ final class CosmeticSession{
 			var_dump(count($this->activeCosmetics));
 			unset($this->activeCosmetics[array_search($cosmetic->getId(), $this->activeCosmetics)]);
 			var_dump(count($this->activeCosmetics));
-			CosmeticX::sendRequest(new ApiRequest("/cosmetic/remove", [
-				"id" => $cosmetic->getId(),
-				"active" => $this->activeCosmetics,
-				"skinData" => Utils::encodeSkinData($this->legacySkin->getSkinData())
-			], true), function (array $data) :void{
+			CosmeticX::sendRequest(new ApiRequest("/cosmetic/deactivate", [
+				"id"           => $cosmetic->getId(),
+				"active"       => $this->activeCosmetics,
+				"skinData"     => Utils::encodeSkinData($this->legacySkin->getSkinData()),
+				"geometry_name" => $this->getHolder()->getSkin()->getGeometryName(),
+				"geometry_data" => $this->getHolder()->getSkin()->getGeometryData(),
+			], true), function (array $data): void{
 				if (!is_null($data["buffer"])) { //FIXME: remove this line if test is done
-					$skin = $this->holder->getSkin();
-					$this->holder->setSkin(new Skin($skin->getSkinId(), Utils::decodeSkinData($data["buffer"]), $skin->getCapeData(), $data["geometry_name"] ?? $skin->getGeometryName(), $data["geometry_data"] ?? $skin->getGeometryData()));
-					$this->holder->sendSkin();
+					$this->sendSkin($data["buffer"], $data["geometry_name"], $data["geometry_data"]);
 				} //FIXME: remove this line if test is done
 			});
+		}
+	}
+
+	public function sendSkin(string $buffer, string $geometry_name = null, string $geometry_data = null): void{
+		try {
+			Utils::saveSkinData($this->getHolder()->getName(), Utils::decodeSkinData($buffer));
+			$this->getHolder()->setSkin(new Skin($this->getHolder()->getSkin()->getSkinId(), Utils::decodeSkinData($buffer), $this->getHolder()->getSkin()->getCapeData(), $geometry_name ?? $this->getHolder()->getSkin()->getGeometryName(), $geometry_data ?? $this->getHolder()->getSkin()->getGeometryData()));
+			$this->getHolder()->sendSkin();
+		} catch (JsonException $e) {
+			CosmeticX::getInstance()->getLogger()->logException($e);
 		}
 	}
 
@@ -116,7 +125,8 @@ final class CosmeticSession{
 	 * @return Player
 	 */
 	public function getHolder(): Player{
-		return is_null($this->holder) ? $this->holder = Server::getInstance()->getPlayerExact($this->username) : $this->holder;
+		return is_null($this->holder) ? $this->holder = Server::getInstance()->getPlayerExact($this->username)
+			: $this->holder;
 	}
 
 	/**

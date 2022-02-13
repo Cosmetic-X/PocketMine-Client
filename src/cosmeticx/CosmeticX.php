@@ -11,6 +11,8 @@ use cosmeticx\command\CosmeticXCommand;
 use cosmeticx\task\async\SendRequestAsyncTask;
 use Frago9876543210\EasyForms\elements\Image;
 use Phar;
+use pocketmine\network\mcpe\convert\SkinAdapter;
+use pocketmine\network\mcpe\convert\SkinAdapterSingleton;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
@@ -46,6 +48,7 @@ class CosmeticX extends PluginBase{
 	public ?TaskHandler $refresh_interval = null;
 	/** @var Permission[] */
 	private array $permissions = [];
+	private SkinAdapter $legacy_skin_adapter;
 
 	/**
 	 * CosmeticX constructor.
@@ -89,9 +92,15 @@ class CosmeticX extends PluginBase{
 	protected function onEnable(): void{
 		$this->getServer()->getPluginManager()->registerEvents(new Listener(), $this);
 		$this->getServer()->getCommandMap()->register("cosmeticx", $this->command = new CosmeticXCommand());
+		$this->legacy_skin_adapter = SkinAdapterSingleton::get();
+		//SkinAdapterSingleton::set(new CosmeticXSkinAdapter());
 		$this->registerPermissions();
 		$this->getScheduler()->scheduleDelayedTask(new ClosureTask(fn () => $this->refresh_interval = $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(fn () => $this->refresh()), $this->getConfig()->get("refresh-interval", 300) * 20)), $this->getConfig()->get("refresh-interval", 300) * 20);
 		$this->check();
+	}
+
+	protected function onDisable(): void{
+		SkinAdapterSingleton::set($this->legacy_skin_adapter);
 	}
 
 	/**

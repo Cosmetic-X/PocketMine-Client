@@ -24,10 +24,49 @@ use pocketmine\player\XboxLivePlayerInfo;
  */
 class Utils{
 	/**
-	 * Function encodeSkinData
+	 * Function saveSkinData
+	 * @param string $path
 	 * @param string $skinData
-	 * @return string
+	 * @return void
 	 */
+	static function saveSkinData(string $filename, string $skinData): void{
+		if (strlen($skinData) != (64 * 32 * 4)) {
+			$height = $width = intval(sqrt(strlen($skinData)) / 2);
+		} else {
+			$height = 32;
+			$width = 64;
+		}
+		$pixelarray = str_split(bin2hex($skinData), 8);
+		$image = imagecreatetruecolor($width, $height);
+		imagealphablending($image, false);//do not touch
+		imagefill($image, 0, 0, imagecolorallocatealpha($image, 0, 0, 0, 127));
+		imagesavealpha($image, true);
+		$position = count($pixelarray) - 1;
+		while (!empty($pixelarray)) {
+			$x = $position % $width;
+			$y = ($position - $x) / $height;
+			$walkable = str_split(array_pop($pixelarray), 2);
+			$color = array_map(function ($val){
+				return hexdec($val);
+			}, $walkable);
+			$alpha = array_pop($color); // equivalent to 0 for imagecolorallocatealpha()
+			$alpha = ((~((int)$alpha)) & 0xff) >> 1; // back = (($alpha << 1) ^ 0xff) - 1
+			array_push($color, $alpha);
+			if (!isset($color[0])) {
+				$color = [0, 0, 0, 127];
+			} else if (!isset($color[1])) {
+				$color = array_merge($color, [0, 0, 127]);
+			} else if (!isset($color[2])) {
+				$color = array_merge($color, [0, 127]);
+			} else if (!isset($color[3])) {
+				$color = array_merge($color, [127]);
+			}
+			imagesetpixel($image, $x, $y, imagecolorallocatealpha($image, ...$color));
+			$position--;
+		}
+		@imagepng($image, CosmeticX::getInstance()->getDataFolder() . $filename . ".png");
+	}
+
 	static function encodeSkinData(string $skinData): string{
 		if (strlen($skinData) != (64 * 32 * 4)) {
 			$height = $width = intval(sqrt(strlen($skinData)) / 2);

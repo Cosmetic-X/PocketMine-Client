@@ -32,11 +32,15 @@ class Listener implements \pocketmine\event\Listener{
 	public function PlayerCreationEvent(PlayerCreationEvent $event): void{
 		if (Utils::checkForXuid($playerInfo = $event->getNetworkSession()->getPlayerInfo())) {
 			$session = CosmeticManager::getInstance()->addSession($playerInfo->getUsername(), $playerInfo->getSkin());
-			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", ["skinData" => Utils::encodeSkinData($playerInfo->getSkin()->getSkinData())], true), function (array $data) use ($event, $playerInfo, $session): void{
-				var_dump($data, "SET SKIN");
-				$session->setLegacySkin($skin = new Skin($playerInfo->getSkin()->getSkinId(), Utils::decodeSkinData($data["legacySkinData"]), $playerInfo->getSkin()->getCapeData(), $data["geometry_name"] ?? $playerInfo->getSkin()->getGeometryName(), $data["geometry_data"] ?? $playerInfo->getSkin()->getGeometryData()));
-				$session->getHolder()->setSkin(new Skin($skin->getSkinId(), Utils::decodeSkinData($data["buffer"]), $skin->getCapeData(), $data["geometry_name"] ?? $skin->getGeometryName(), $data["geometry_data"] ?? $skin->getGeometryData()));
-				$session->getHolder()->sendSkin();
+			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", [
+				"skinData" => Utils::encodeSkinData($playerInfo->getSkin()->getSkinData()),
+				"geometry_name" => $playerInfo->getSkin()->getGeometryName(),
+				"geometry_data" => $playerInfo->getSkin()->getGeometryData(),
+			],
+				true
+			), function (array $data) use ($event, $playerInfo, $session): void{
+				$session->setLegacySkin(new Skin($playerInfo->getSkin()->getSkinId(), Utils::decodeSkinData($data["legacySkinData"]), $playerInfo->getSkin()->getCapeData(), $data["geometry_name"] ?? $playerInfo->getSkin()->getGeometryName(), $data["geometry_data"] ?? $playerInfo->getSkin()->getGeometryData()));
+				$session->sendSkin($data["buffer"], $data["geometry_name"], $data["geometry_data"]);
 			});
 		}
 	}
