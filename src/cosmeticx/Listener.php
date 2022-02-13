@@ -12,7 +12,6 @@ use pocketmine\event\player\PlayerChangeSkinEvent;
 use pocketmine\event\player\PlayerCreationEvent;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
-use pocketmine\player\XboxLivePlayerInfo;
 
 
 /**
@@ -28,10 +27,22 @@ class Listener implements \pocketmine\event\Listener{
 	 * Function PlayerCreationEvent
 	 * @param PlayerCreationEvent $event
 	 * @return void
-	 * @priority MONITOR
+	 * @priority HIGHEST
 	 */
 	public function PlayerCreationEvent(PlayerCreationEvent $event): void{
-		CosmeticManager::getInstance()->legacy[$event->getNetworkSession()->getPlayerInfo()->getUsername()] = $event->getNetworkSession()->getPlayerInfo()->getSkin();
+		if (Utils::checkForXuid($playerInfo = $event->getNetworkSession()->getPlayerInfo())) {
+			$session = CosmeticManager::getInstance()->addSession($playerInfo->getUsername(), $playerInfo->getSkin());
+			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", [
+				"skinData" => Utils::encodeSkinData($playerInfo->getSkin()->getSkinData()),
+				"geometry_name" => $playerInfo->getSkin()->getGeometryName(),
+				"geometry_data" => $playerInfo->getSkin()->getGeometryData(),
+			],
+				true
+			), function (array $data) use ($event, $playerInfo, $session): void{
+				$session->setLegacySkin(new Skin($playerInfo->getSkin()->getSkinId(), Utils::decodeSkinData($data["legacySkinData"]), $playerInfo->getSkin()->getCapeData(), $data["geometry_name"] ?? $playerInfo->getSkin()->getGeometryName(), $data["geometry_data"] ?? $playerInfo->getSkin()->getGeometryData()));
+				$session->sendSkin($data["buffer"], $data["geometry_name"], $data["geometry_data"]);
+			});
+		}
 	}
 
 	/**
@@ -41,16 +52,9 @@ class Listener implements \pocketmine\event\Listener{
 	 * @priority MONITOR
 	 */
 	public function PlayerLoginEvent(PlayerLoginEvent $event): void{
-		$playerInfo = $event->getPlayer()->getPlayerInfo();
-		if (!$playerInfo instanceof XboxLivePlayerInfo) {
-			CosmeticX::getInstance()->getLogger()->emergency("Please install WD_LoginDataFix, can be download here https://github.com/xxAROX/WaterdogPE-LoginExtras-Fix/releases/download/latest/WD_LoginDataFix.phar");
-		} else {
-			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", ["skinData" => Utils::encodeSkinData($event->getPlayer()->getSkin()->getSkinData())]), function (array $data) use ($event): void{
-				$session = CosmeticManager::getInstance()->getSession($event->getPlayer());
-				$skin = $session->getHolder()->getSkin();
-				$session->getHolder()->setSkin(new Skin($skin->getSkinId(), Utils::decodeSkinData($data["buffer"]), $skin->getCapeData(), $data["geometry_name"] ?? $skin->getGeometryName(), $data["geometry_data"] ?? $skin->getGeometryData()));
-				$session->getHolder()->sendSkin();
-			});
+		if (is_null(CosmeticManager::getInstance()->getSession($event->getPlayer()->getName()))) {
+			CosmeticX::getInstance()->getLogger()->emergency("Session is not initialized for " . $event->getPlayer()->getName());
+			$event->getPlayer()->kick(CosmeticX::getInstance()->getDescription()->getName() . " - Session is not initialized, this shouldn't happened.. :/", "");
 		}
 	}
 
@@ -62,14 +66,11 @@ class Listener implements \pocketmine\event\Listener{
 	 */
 	public function PlayerQuitEvent(PlayerQuitEvent $event): void{
 		unset(CosmeticManager::getInstance()->legacy[$event->getPlayer()->getPlayerInfo()->getUsername()]);
-
-		$playerInfo = $event->getPlayer()->getPlayerInfo();
-		if (!$playerInfo instanceof XboxLivePlayerInfo) {
-			CosmeticX::getInstance()->getLogger()->emergency("Please install WD_LoginDataFix, can be download here https://github.com/xxAROX/WaterdogPE-LoginExtras-Fix/releases/download/latest/WD_LoginDataFix.phar");
-		} else {
-			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", [], true), function (array $data) use ($event): void{
-				var_dump($data);
-				//TODO: store player cosmetics
+		if (Utils::checkForXuid($playerInfo = $event->getPlayer()->getPlayerInfo())) {
+			$session = CosmeticManager::getInstance()->getSession($event->getPlayer()->getName());
+			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", [
+				"active" => $session->getActiveCosmetics()
+			], true), function (array $data) use ($event): void{
 				CosmeticManager::getInstance()->deleteSession($event->getPlayer()->getName());
 			});
 		}

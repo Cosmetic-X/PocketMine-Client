@@ -6,14 +6,11 @@
  */
 declare(strict_types=1);
 namespace cosmeticx\forms;
-use cosmeticx\ApiRequest;
 use cosmeticx\CosmeticManager;
 use cosmeticx\cosmetics\Cosmetic;
 use cosmeticx\CosmeticX;
-use cosmeticx\utils\Utils;
 use Frago9876543210\EasyForms\elements\FunctionalButton;
 use Frago9876543210\EasyForms\forms\MenuForm;
-use pocketmine\entity\Skin;
 use pocketmine\player\Player;
 use pocketmine\utils\SingletonTrait;
 
@@ -36,19 +33,22 @@ class BasicForms{
 	 * @return void
 	 */
 	function sendPublicCosmeticsForm(Player $player): void{
+		$session = CosmeticManager::getInstance()->getSession($player->getName());
 		$player->sendForm(new MenuForm(
-			"Cosmetic-X",
+			CosmeticX::getInstance()->getDescription()->getName(),
 			(count(CosmeticManager::getInstance()->getPublicCosmetics()) == 0) ? "§cNo cosmetics found" : "",
-			array_merge(($player->getSkin()->getSkinData() != (isset(CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]) ? CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]->getSkinData() : "JIC") ? [new FunctionalButton("§cReset Skin", function (Player $player): void{
-					$player->setSkin(CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]);
-					$player->sendSkin();
-				})] : []), array_map(function (Cosmetic $cosmetic){
-				return new FunctionalButton($cosmetic->getDisplayName(), function (Player $player) use ($cosmetic): void{
-					CosmeticX::sendRequest(new ApiRequest("/merge-skin-with-cosmetic", ["id" => $cosmetic->getId(),"skinData" => Utils::encodeSkinData($player->getSkin()->getSkinData())], true), function (array $data) use ($player): void{
-						$skin = $player->getSkin();
-						$player->setSkin(new Skin($skin->getSkinId(), Utils::decodeSkinData($data["buffer"]), $skin->getCapeData(), $data["geometry_name"] ?? $skin->getGeometryName(), $data["geometry_data"] ?? $skin->getGeometryData()));
-						$player->sendSkin();
-					});
+			array_merge(($player->getSkin()->getSkinData() != $session->getLegacySkin()->getSkinData() ? [new FunctionalButton("§cReset", function (Player $player) use ($session): void{
+				$session->deactivateCosmetics();
+				$player->setSkin($session->getLegacySkin());
+				$player->sendSkin();
+			})] : []), array_map(function (Cosmetic $cosmetic) use ($session){
+				return new FunctionalButton($cosmetic->getDisplayName(), function (Player $player) use ($cosmetic, $session): void{
+					if (!$session->isActiveCosmetic($cosmetic)) {
+						$session->activateCosmetic($cosmetic);
+					} else {
+						$session->deactivateCosmetic($cosmetic);
+					}
+					$this->sendPublicCosmeticsForm($player);
 				}, $cosmetic->getImage());
 			}, CosmeticManager::getInstance()->getPublicCosmetics()))
 		));
@@ -60,19 +60,22 @@ class BasicForms{
 	 * @return void
 	 */
 	function sendSlotCosmeticsForm(Player $player): void{
+		$session = CosmeticManager::getInstance()->getSession($player->getName());
 		$player->sendForm(new MenuForm(
-			"Cosmetic-X",
+			CosmeticX::getInstance()->getDescription()->getName(),
 			(count(CosmeticManager::getInstance()->getSlotCosmetics()) == 0) ? "§cNo cosmetics found" : "",
-			array_merge(($player->getSkin()->getSkinData() != (isset(CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]) ? CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]->getSkinData() : "JIC") ? [new FunctionalButton("§cReset Skin", function (Player $player): void{
-					$player->setSkin(CosmeticManager::getInstance()->legacy[$player->getPlayerInfo()->getUsername()]);
-					$player->sendSkin();
-				})] : []), array_map(function (Cosmetic $cosmetic){
-				return new FunctionalButton($cosmetic->getDisplayName(), function (Player $player) use ($cosmetic): void{
-					CosmeticX::sendRequest(new ApiRequest("/slot/merge-skin-with-cosmetic", ["id" => $cosmetic->getId(),"skinData" => Utils::encodeSkinData($player->getSkin()->getSkinData())], true), function (array $data) use ($player): void{
-						$skin = $player->getSkin();
-						$player->setSkin(new Skin($skin->getSkinId(), Utils::decodeSkinData($data["buffer"]), $skin->getCapeData(), $data["geometry_name"] ?? $skin->getGeometryName(), $data["geometry_data"] ?? $skin->getGeometryData()));
-						$player->sendSkin();
-					});
+			array_merge(($player->getSkin()->getSkinData() != $session->getLegacySkin()->getSkinData() ? [new FunctionalButton("§cReset", function (Player $player) use ($session): void{
+				$session->deactivateCosmetics();
+				$player->setSkin($session->getLegacySkin());
+				$player->sendSkin();
+			})] : []), array_map(function (Cosmetic $cosmetic) use ($session){
+				return new FunctionalButton($cosmetic->getDisplayName() . "§r" . PHP_EOL . ($session->isActiveCosmetic($cosmetic) ? "§aActive" : "§cInactive"), function (Player $player) use ($cosmetic, $session): void{
+					if (!$session->isActiveCosmetic($cosmetic)) {
+						$session->activateCosmetic($cosmetic);
+					} else {
+						$session->deactivateCosmetic($cosmetic);
+					}
+					$this->sendSlotCosmeticsForm($player);
 				}, $cosmetic->getImage());
 			}, CosmeticManager::getInstance()->getSlotCosmetics()))
 		));

@@ -1,12 +1,12 @@
-name: "Stable release"
+name: "Dev Release"
 on:
   push:
-    branches: ["main"]
+    branches: ["development"]
 
 jobs:
-  release:
-    if: "startsWith(github.event.head_commit.message, 'Release ')"
-    name: "Create stable release"
+  dev-release:
+
+    name: "Create Dev-Release"
     runs-on: ubuntu-latest
 
     steps:
@@ -28,12 +28,12 @@ jobs:
       - name: "Build phar"
         run: "php -dphar.readonly=0 build.php"
 
-      - name: "Create Release"
+      - name: "Create Development Release"
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "v${{ steps.metadata.outputs.VERSION }}"
-          prerelease: false
-          title: "Release v${{ steps.metadata.outputs.VERSION }}"
+          automatic_release_tag: "dev"
+          prerelease: true
+          title: "Development Release v${{ steps.metadata.outputs.VERSION }}"
           files: |
             out/*.phar

@@ -10,7 +10,6 @@ use cosmeticx\cosmetics\Cosmetic;
 use cosmeticx\cosmetics\CosmeticSession;
 use Frago9876543210\EasyForms\elements\Image;
 use pocketmine\entity\Skin;
-use pocketmine\player\Player;
 use pocketmine\utils\SingletonTrait;
 
 
@@ -25,7 +24,10 @@ use pocketmine\utils\SingletonTrait;
 class CosmeticManager{
 	use SingletonTrait;
 
-	/** @var Skin[] */
+	/**
+	 * @var Skin[]
+	 * @deprecated
+	 */
 	public array $legacy = [];
 	/** @var CosmeticSession[] */
 	private array $sessions = [];
@@ -76,11 +78,18 @@ class CosmeticManager{
 		$this->slotCosmetics[] = new Cosmetic($name, $display_name, $id, $image, Cosmetic::SLOT);
 	}
 
-	function getSession(Player $player): CosmeticSession{
-		if (!isset($this->sessions[$player->getName()])) {
-			$this->sessions[$player->getName()] = new CosmeticSession($player);
+	function addSession(string $username, Skin $legacySkin): CosmeticSession{
+		if (!isset($this->sessions[mb_strtolower($username)])) {
+			$this->sessions[mb_strtolower($username)] = new CosmeticSession($username, $legacySkin);
 		}
-		return $this->sessions[$player->getName()];
+		return $this->sessions[mb_strtolower($username)];
+	}
+
+	function getSession(string $username): ?CosmeticSession{
+		if (isset($this->sessions[mb_strtolower($username)])) {
+			return $this->sessions[mb_strtolower($username)];
+		}
+		return null;
 	}
 
 	function deleteSession(string $username): void{
