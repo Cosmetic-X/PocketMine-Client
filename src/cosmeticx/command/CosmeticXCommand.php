@@ -41,13 +41,13 @@ final class CosmeticXCommand extends Command{
 	public function __construct(){
 		parent::__construct("cosmeticx", "Cosmetic-X command", "§cUsage: §7/cosmeticx help", ["cx"]);
 		$this->setPermission("cosmetic-x.command");
-		$this->loadSubCommand(new HelpSubCommand("help", ["?"]));
-		$this->loadSubCommand(new InfoSubCommand("info", ["i"]));
-		$this->loadSubCommand(new ReloadSubCommand("reload", ["rl"]));
-		$this->loadSubCommand(new MenuSubCommand("menu", ["public"]));
-		$this->loadSubCommand(new SlotCosmeticsMenuSubCommand("slot-cosmetics", ["slot", "sc"]));
-		$this->loadSubCommand(new EncodeSubCommand("encode"));
-		$this->loadSubCommand(new PermissionsSubCommand("permissions", ["perms"]));
+		$this->loadSubCommand(new HelpSubCommand("help", "Info sub-command.", ["?"]));
+		$this->loadSubCommand(new InfoSubCommand("info", "Info sub-command.", ["i"]));
+		$this->loadSubCommand(new ReloadSubCommand("reload", "Reload sub-command.", ["rl"]));
+		$this->loadSubCommand(new MenuSubCommand("menu", "Shows public cosmetic menu.", ["public"]));
+		$this->loadSubCommand(new SlotCosmeticsMenuSubCommand("slot", "Shows Slot cosmetic menu."));
+		$this->loadSubCommand(new EncodeSubCommand("encode", "Encode cosmetic to the correct file format."));
+		$this->loadSubCommand(new PermissionsSubCommand("permissions", "Show all permissions.", ["perms"]));
 	}
 
 	/**

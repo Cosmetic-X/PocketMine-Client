@@ -27,8 +27,8 @@ class PermissionsSubCommand extends SubCommand{
 	 * @param string $name
 	 * @param array $aliases
 	 */
-	public function __construct(string $name, array $aliases = []){
-		parent::__construct($name, $aliases);
+	public function __construct(string $name, string $description = "No description provided.", array $aliases = []){
+		parent::__construct($name, $description, $aliases);
 		$this->setPermission("permission");
 	}
 

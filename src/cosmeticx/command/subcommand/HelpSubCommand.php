@@ -10,7 +10,6 @@ use cosmeticx\command\SubCommand;
 use cosmeticx\CosmeticX;
 use Frago9876543210\EasyForms\elements\FunctionalButton;
 use Frago9876543210\EasyForms\forms\MenuForm;
-use Frago9876543210\EasyForms\forms\PageForm;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -36,7 +35,7 @@ class HelpSubCommand extends SubCommand{
 		$help = [];
 		foreach (CosmeticX::getInstance()->getCosmeticXCommand()->getSubCommands() as $_ => $subCommand) {
 			if (!$subCommand instanceof self) {
-				$help[] = "§a/" . CosmeticX::getInstance()->getCosmeticXCommand()->getName() . " {$subCommand->getName()}" . (count($subCommand->getAliases()) > 0 ? " | " . implode(" | ", $subCommand->getAliases()) : "");
+				$help[] = "§a/" . CosmeticX::getInstance()->getCosmeticXCommand()->getName() . " {$subCommand->getName()} | " . (count($subCommand->getAliases()) > 0 ? implode(" | ", $subCommand->getAliases()) . " | " : "") . $subCommand->getDescription();
 			}
 		}
 		if ($sender instanceof Player) {

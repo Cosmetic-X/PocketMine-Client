@@ -21,8 +21,8 @@ use pocketmine\command\CommandSender;
  * @project PocketMine-Client
  */
 class EncodeSubCommand extends SubCommand{
-	public function __construct(string $name, array $aliases = []){
-		parent::__construct($name, $aliases);
+	public function __construct(string $name, string $description = "No description provided.", array $aliases = []){
+		parent::__construct($name, $description, $aliases);
 		$this->setPermission("encode");
 	}
 

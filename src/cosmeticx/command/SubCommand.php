@@ -1,8 +1,8 @@
 <?php
 /*
- * Copyright (c) 2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * This plugin is under GPL license
  */
 declare(strict_types=1);
 namespace cosmeticx\command;
@@ -19,6 +19,7 @@ use pocketmine\command\CommandSender;
  */
 abstract class SubCommand{
 	private string $name;
+	private string $description;
 	/** @var string[] */
 	private array $aliases;
 	private ?string $permission = null;
@@ -26,10 +27,12 @@ abstract class SubCommand{
 	/**
 	 * SubCommand constructor.
 	 * @param string $name
+	 * @param string $description
 	 * @param array $aliases
 	 */
-	public function __construct(string $name, array $aliases = []){
+	public function __construct(string $name, string $description = "No description provided.", array $aliases = []){
 		$this->name = strtolower($name);
+		$this->description = $description;
 		$this->aliases = array_map(fn(string $alias) => strtolower($alias), $aliases);
 	}
 
@@ -39,6 +42,14 @@ abstract class SubCommand{
 	 */
 	public final function getName(): string{
 		return $this->name;
+	}
+
+	/**
+	 * Function getDescription
+	 * @return string
+	 */
+	public function getDescription(): string{
+		return $this->description;
 	}
 
 	/**
