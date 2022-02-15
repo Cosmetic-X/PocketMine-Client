@@ -1,3 +1,3 @@
 # Cosmetic-X
 
-<sub><sub><sub><sub>by xxAROX
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/cosmeticx)
