@@ -1,5 +1,4 @@
 # Don't touch this config
 protocol: "https"
-host: "localhost"
-port: 20085
+host: "cosmetic-x.de"
 refresh-interval: 1800

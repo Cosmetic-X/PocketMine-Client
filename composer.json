@@ -2,6 +2,12 @@
     "name": "cosmetic-x/pocketmine-client",
     "type": "project",
     "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:xxAROX/plugin-security.git"
+        }
+    ],
     "require": {
         "php": "^8.0",
         "ext-curl": "*",
@@ -11,7 +17,8 @@
     },
     "require-dev": {
         "pocketmine/pocketmine-mp": "^4",
-        "xxarox/waterdogpe-login-extra-data-fix": "dev-main"
+        "xxarox/waterdogpe-login-extra-data-fix": "dev-main",
+        "xxarox/plugin-security": "dev-main"
     },
     "autoload": {
         "psr-4": {
