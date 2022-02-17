@@ -11,6 +11,7 @@ ini_set("memory_limit", "-1");
 $buildOnLocalServer = true;
 $packages = [
 	//EXAMPLE: "xxarox/web-server": ["paths" => ["src/","README.md"], "encode" => true]
+	//"xxarox/waterdogpe-login-extra-data-fix" => ["paths" => ["src/"], "encode" => true]
 ];
 $loader = include_once __DIR__ . "/vendor/autoload.php";
 $startTime = microtime(true);
@@ -71,7 +72,9 @@ foreach ($packages as $vendor => $obj) {
 	}
 }
 echo "[INFO]: Encoding plugin.." . PHP_EOL;
-(new \xxAROX\PluginSecurity\Encoder($to, $excluded))->encode();
+if (getenv("USERNAME") !== false) {
+	(new \xxAROX\PluginSecurity\Encoder($to, $excluded))->encode();
+}
 echo "[INFO]: Encoding done!" . PHP_EOL;
 
 if (is_dir($to . "output/")) {
