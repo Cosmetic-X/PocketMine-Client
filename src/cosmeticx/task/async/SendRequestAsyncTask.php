@@ -12,7 +12,6 @@ use cosmeticx\CosmeticX;
 use GlobalLogger;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\AssumptionFailedError;
-use pocketmine\utils\Internet;
 use pocketmine\utils\InternetException;
 use pocketmine\utils\InternetRequestResult;
 use pocketmine\utils\Utils;
@@ -109,7 +108,7 @@ class SendRequestAsyncTask extends AsyncTask{
 		/** @var InternetRequestResult $result */
 		if (!is_null($result = $this->getResult())) {
 			if ($result->getCode() >= 400 && $result->getCode() < 600) {
-				CosmeticX::getInstance()->getLogger()->error("[API-ERROR] [" .$this->request->getUri() . "]: {$result->getBody()}");
+				CosmeticX::getInstance()->getLogger()->error("[API-ERROR] [" .$this->request->getUri() . "]: " . $result->getBody());
 				return;
 			}
 			try {
