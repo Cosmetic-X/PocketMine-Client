@@ -25,7 +25,7 @@ jobs:
           php composer-setup.php
           php -r "unlink('composer-setup.php');"
           composer install --no-dev
-          ls vendor
+          ls vendor/xxarox
 
       - name: "Get data"
         id: metadata
