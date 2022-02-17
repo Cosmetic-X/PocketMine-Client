@@ -2,6 +2,11 @@
     "name": "cosmetic-x/pocketmine-client",
     "type": "project",
     "minimum-stability": "dev",
+    "config": {
+        "github-oauth": {
+            "github.com": "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"
+        }
+    },
     "repositories": [
         {
             "type": "vcs",
