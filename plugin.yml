@@ -6,5 +6,6 @@ website: "https://cosmetic-x.de"
 version: "1.0+dev"
 description: "Cosmetic-X client for PocketMine-MP"
 
-api: [ "4.0.0" ]
+api:
+  - "4.0.0"
 main: cosmeticx\CosmeticX
