@@ -107,10 +107,8 @@ class SendRequestAsyncTask extends AsyncTask{
 	public function onCompletion(): void{
 		/** @var InternetRequestResult $result */
 		if (!is_null($result = $this->getResult())) {
-			if (!in_array($result->getCode(), range(100, 399))) { // Good
+			if (in_array($result->getCode(), range(100, 399))) { // Good
 				try {
-					var_dump($result->getHeaders());
-
 					$result = json_decode($result->getBody(), true, 512, JSON_THROW_ON_ERROR);
 					($this->onResponse)($result);
 				} catch (Throwable $e) {
