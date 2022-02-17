@@ -35,7 +35,7 @@ class HelpSubCommand extends SubCommand{
 		$help = [];
 		foreach (CosmeticX::getInstance()->getCosmeticXCommand()->getSubCommands() as $_ => $subCommand) {
 			if (!$subCommand instanceof self) {
-				$help[] = "§a/" . CosmeticX::getInstance()->getCosmeticXCommand()->getName() . " {$subCommand->getName()} | " . (count($subCommand->getAliases()) > 0 ? implode(" | ", $subCommand->getAliases()) . " | " : "") . $subCommand->getDescription();
+				$help[] = "§a/" . CosmeticX::getInstance()->getCosmeticXCommand()->getName() . " " . $subCommand->getName() . " | " . (count($subCommand->getAliases()) > 0 ? implode(" | ", $subCommand->getAliases()) . " | " : "") . $subCommand->getDescription();
 			}
 		}
 		if ($sender instanceof Player) {

@@ -153,7 +153,7 @@ class CosmeticX extends PluginBase{
 			if ($this->holder == "n/a") {
 				$this->getLogger()->alert("Token is not valid.");
 			} else {
-				$this->getLogger()->notice("Logged in as {$this->holder}");
+				$this->getLogger()->notice("Logged in as " . $this->holder);
 				$this->loadCosmetics();
 			}
 		});
@@ -210,7 +210,7 @@ class CosmeticX extends PluginBase{
 		foreach ($this->command->getSubCommands() as $subCommand) {
 			if (!is_null($subCommand->getPermission())) {
 				$permission = $this->command->getPermission() . "." . $subCommand->getPermission();
-				PermissionManager::getInstance()->addPermission($this->permissions[] = new Permission($permission, "Allows to use the '/{$this->command->getName()} {$subCommand->getName()}' command."));
+				PermissionManager::getInstance()->addPermission($this->permissions[] = new Permission($permission, "Allows to use the '/" . $this->command->getName() . " {$subCommand->getName()}' command."));
 				$overlord->addChild($permission, true);
 			}
 		}

@@ -84,7 +84,7 @@ final class CosmeticXCommand extends Command{
 			} else if (isset($this->aliasSubCommands[$subCommandName])) {
 				$subCommand = $this->aliasSubCommands[$subCommandName];
 			} else {
-				$sender->sendMessage("Unknown sub-command '{$subCommandName}'.");
+				$sender->sendMessage("Unknown sub-command '" . $subCommandName . "'.");
 				return;
 			}
 			if ($subCommand instanceof PlayerSubCommand && !$sender instanceof Player) {
@@ -103,7 +103,7 @@ final class CosmeticXCommand extends Command{
 			try {
 				$subCommand->execute($sender, $args);
 			} catch (Throwable $throwable) {
-				$sender->sendMessage("§cError while executing sub-command '{$subCommand->getName()}'");
+				$sender->sendMessage("§cError while executing sub-command '" . $subCommand->getName() . "'");
 				CosmeticX::getInstance()->getLogger()->logException($throwable);
 			}
 		}

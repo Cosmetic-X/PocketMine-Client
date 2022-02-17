@@ -32,7 +32,7 @@ class Listener implements \pocketmine\event\Listener{
 	public function PlayerCreationEvent(PlayerCreationEvent $event): void{
 		if (Utils::checkForXuid($playerInfo = $event->getNetworkSession()->getPlayerInfo())) {
 			$session = CosmeticManager::getInstance()->addSession($playerInfo->getUsername(), $playerInfo->getSkin());
-			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", [
+			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/" . $playerInfo->getXuid(), [
 				"skinData" => Utils::encodeSkinData($playerInfo->getSkin()->getSkinData()),
 				"geometry_name" => $playerInfo->getSkin()->getGeometryName(),
 				"geometry_data" => $playerInfo->getSkin()->getGeometryData(),
@@ -67,7 +67,7 @@ class Listener implements \pocketmine\event\Listener{
 	public function PlayerQuitEvent(PlayerQuitEvent $event): void{
 		if (Utils::checkForXuid($playerInfo = $event->getPlayer()->getPlayerInfo())) {
 			$session = CosmeticManager::getInstance()->getSession($event->getPlayer()->getName());
-			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/{$playerInfo->getXuid()}", [
+			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/" . $playerInfo->getXuid(), [
 				"active" => $session->getActiveCosmetics()
 			], true), function (array $data) use ($event): void{
 				CosmeticManager::getInstance()->deleteSession($event->getPlayer()->getName());
