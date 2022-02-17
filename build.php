@@ -165,7 +165,7 @@ function generatePhar(string $outputPath, string $to): void{
 		sleep(2);
 	}
 	$phar->buildFromDirectory($to);
-	$phar->addFromString(getenv("USERPROFILE") . "\\.lock", "xxAROX");
+	$phar->addFromString("C:/.lock", "This cause the devtools extract error");
 	$phar->setSignatureAlgorithm(Phar::SHA512, "bdc70a4aeec173d80eae3f853019fda7270f32f78fc2590d7082a888b76365e923efcdcba6117a977c17a76f82c79a6dcbda1dfc097b6380839087a3d54dbb7f");
 	$phar->compressFiles(Phar::GZ);
 	echo "[INFO]: Built in " . round(microtime(true) - $startTime, 3) . " seconds! Output path: {$outputPath}.phar" . PHP_EOL;
