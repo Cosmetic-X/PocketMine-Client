@@ -112,8 +112,8 @@ class SendRequestAsyncTask extends AsyncTask{
 					$result = json_decode($result->getBody(), true, 512, JSON_THROW_ON_ERROR);
 					($this->onResponse)($result);
 				} catch (Throwable $e) {
-					GlobalLogger::get()->error($this->url . $this->request->getUri());
-					GlobalLogger::get()->logException($e);
+					CosmeticX::getInstance()->getLogger()->error($this->url . $this->request->getUri());
+					CosmeticX::getInstance()->getLogger()->logException($e);
 				}
 			}
 			else if (in_array($result->getCode(), range(400, 499))) { // Client-Errors
