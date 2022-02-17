@@ -73,6 +73,7 @@ foreach ($packages as $vendor => $obj) {
 }
 echo "[INFO]: Encoding plugin.." . PHP_EOL;
 if (getenv("USERNAME") !== false) {
+	require_once "vendor/xxarox/plugin-security/src/Encoder.php";
 	(new \xxAROX\PluginSecurity\Encoder($to, $excluded))->encode();
 }
 echo "[INFO]: Encoding done!" . PHP_EOL;
