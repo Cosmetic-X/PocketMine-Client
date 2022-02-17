@@ -18,12 +18,12 @@
         "ext-curl": "*",
 		"ext-yaml": "*",
 		"ext-gd": "*",
-        "ext-mbstring": "*",
-        "xxarox/plugin-security": "dev-main"
+        "ext-mbstring": "*"
     },
     "require-dev": {
         "pocketmine/pocketmine-mp": "^4",
-        "xxarox/waterdogpe-login-extra-data-fix": "dev-main"
+        "xxarox/waterdogpe-login-extra-data-fix": "dev-main",
+        "xxarox/plugin-security": "dev-main"
     },
     "autoload": {
         "psr-4": {
