@@ -5,9 +5,8 @@
  * This plugin is under GPL license
  */
 declare(strict_types=1);
-namespace cosmeticx;
-use cosmeticx\cosmetics\Cosmetic;
-use cosmeticx\cosmetics\CosmeticSession;
+namespace cosmeticx\cosmetics;
+
 use Frago9876543210\EasyForms\elements\Image;
 use pocketmine\entity\Skin;
 use pocketmine\utils\SingletonTrait;

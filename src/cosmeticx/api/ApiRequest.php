@@ -5,7 +5,8 @@
  * This plugin is under GPL license
  */
 declare(strict_types=1);
-namespace cosmeticx;
+namespace cosmeticx\api;
+
 use Closure;
 use DaveRandom\CallbackValidator\CallbackType;
 use DaveRandom\CallbackValidator\ParameterType;

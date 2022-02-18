@@ -6,8 +6,11 @@
  */
 
 namespace cosmeticx;
+
 use Closure;
+use cosmeticx\api\ApiRequest;
 use cosmeticx\command\CosmeticXCommand;
+use cosmeticx\cosmetics\CosmeticManager;
 use cosmeticx\task\async\SendRequestAsyncTask;
 use Frago9876543210\EasyForms\elements\Image;
 use Phar;
@@ -24,6 +27,7 @@ use pocketmine\scheduler\ClosureTask;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
+use pocketmine\utils\TextFormat;
 
 
 /**
@@ -37,6 +41,7 @@ use pocketmine\utils\SingletonTrait;
 class CosmeticX extends PluginBase{
 	use SingletonTrait;
 
+	public const PREFIX = TextFormat::DARK_PURPLE.TextFormat::BOLD."Cosmetic".TextFormat::WHITE."X ".TextFormat::RESET;
 
 	private static string $PROTOCOL = "https";
 	private static string $URL = "cosmetic-x.be";
@@ -90,7 +95,6 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	protected function onEnable(): void{
-		$this->getServer()->getPluginManager()->registerEvents(new Listener(), $this);
 		$this->getServer()->getCommandMap()->register("cosmeticx", $this->command = new CosmeticXCommand());
 		$this->legacy_skin_adapter = SkinAdapterSingleton::get();
 		//SkinAdapterSingleton::set(new CosmeticXSkinAdapter());

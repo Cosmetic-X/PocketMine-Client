@@ -7,12 +7,11 @@
 declare(strict_types=1);
 namespace cosmeticx\task\async;
 use Closure;
-use cosmeticx\ApiRequest;
+use cosmeticx\api\ApiRequest;
 use cosmeticx\CosmeticX;
 use GlobalLogger;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\AssumptionFailedError;
-use pocketmine\utils\Internet;
 use pocketmine\utils\InternetException;
 use pocketmine\utils\InternetRequestResult;
 use pocketmine\utils\Utils;

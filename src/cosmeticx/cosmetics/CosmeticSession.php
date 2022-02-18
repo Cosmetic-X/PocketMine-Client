@@ -6,7 +6,8 @@
  */
 declare(strict_types=1);
 namespace cosmeticx\cosmetics;
-use cosmeticx\ApiRequest;
+
+use cosmeticx\api\ApiRequest;
 use cosmeticx\CosmeticX;
 use cosmeticx\utils\Utils;
 use JetBrains\PhpStorm\Pure;

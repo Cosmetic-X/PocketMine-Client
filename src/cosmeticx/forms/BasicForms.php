@@ -6,8 +6,9 @@
  */
 declare(strict_types=1);
 namespace cosmeticx\forms;
-use cosmeticx\CosmeticManager;
+
 use cosmeticx\cosmetics\Cosmetic;
+use cosmeticx\cosmetics\CosmeticManager;
 use cosmeticx\CosmeticX;
 use Frago9876543210\EasyForms\elements\FunctionalButton;
 use Frago9876543210\EasyForms\forms\MenuForm;

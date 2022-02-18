@@ -5,7 +5,7 @@
  * This plugin is under GPL license
  */
 declare(strict_types=1);
-namespace cosmeticx\utils;
+namespace cosmeticx\api;
 /**
  * Class ApiError
  * @package cosmeticx\utils
@@ -14,5 +14,4 @@ namespace cosmeticx\utils;
  * @ide PhpStorm
  * @project PocketMine-Client
  */
-class ApiError extends \ErrorException{
-}
+class ApiError extends \ErrorException{}
