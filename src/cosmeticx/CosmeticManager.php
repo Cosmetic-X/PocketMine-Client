@@ -20,20 +20,22 @@ use pocketmine\utils\SingletonTrait;
  * @date 11. Dezember, 2021 - 21:16
  * @ide PhpStorm
  * @project PocketMine-Client
+ * @internal
  */
-class CosmeticManager{
+final class CosmeticManager{
 	use SingletonTrait;
 
 	/** @var CosmeticSession[] */
 	private array $sessions = [];
 	/** @var Cosmetic[] */
-	private array $publicCosmetics = [];
+	private array $serverCosmetics = [], $publicCosmetics = [];
 	/** @var Cosmetic[] */
 	private array $slotCosmetics = [];
 
 	/**
 	 * Function resetPublicCosmetics
 	 * @return void
+	 * @internal
 	 */
 	function resetPublicCosmetics(): void{
 		unset($this->publicCosmetics);
@@ -43,36 +45,41 @@ class CosmeticManager{
 	/**
 	 * Function resetCosmetics
 	 * @return void
+	 * @internal
 	 */
-	function resetSlotCosmetics(): void{
-		unset($this->slotCosmetics);
-		$this->slotCosmetics = [];
+	function resetServerCosmetics(): void{
+		unset($this->serverCosmetics);
+		$this->serverCosmetics = [];
 	}
 
 	/**
-	 * Function registerCosmetic
-	 * @param string $name
-	 * @param string $display_name
+	 * Function registerPublicCosmetics
 	 * @param string $id
+	 * @param string $name
+	 * @param string $owner
+	 * @param string $display_name
+	 * @param string $creator
 	 * @param null|Image $image
 	 * @return void
+	 * @internal
 	 */
-	function registerPublicCosmetics(string $name, string $display_name, string $id, ?Image $image = null): void{
-		$this->publicCosmetics[] = new Cosmetic($name, $display_name, $id, $image, Cosmetic::PUBLIC);
+	function registerCosmetic(string $id, string $name, string $owner, string $display_name, string $creator, ?Image $image = null): void{
+		$cosmetic = new Cosmetic($id, $name, $display_name, $creator, $owner, $image);
+
+		if ($owner === "Cosmetic-X") {
+			$this->publicCosmetics[] = $cosmetic;
+		} else {
+			$this->serverCosmetics[] = $cosmetic;
+		}
 	}
 
 	/**
-	 * Function registerSlotCosmetic
-	 * @param string $name
-	 * @param string $display_name
-	 * @param string $id
-	 * @param null|Image $image
-	 * @return void
+	 * Function addSession
+	 * @param string $username
+	 * @param Skin $legacySkin
+	 * @return CosmeticSession
+	 * @internal
 	 */
-	function registerSlotCosmetic(string $name, string $display_name, string $id, ?Image $image = null): void{
-		$this->slotCosmetics[] = new Cosmetic($name, $display_name, $id, $image, Cosmetic::SLOT);
-	}
-
 	function addSession(string $username, Skin $legacySkin): CosmeticSession{
 		if (!isset($this->sessions[mb_strtolower($username)])) {
 			$this->sessions[mb_strtolower($username)] = new CosmeticSession($username, $legacySkin);
@@ -80,6 +87,12 @@ class CosmeticManager{
 		return $this->sessions[mb_strtolower($username)];
 	}
 
+	/**
+	 * Function getSession
+	 * @param string $username
+	 * @return null|CosmeticSession
+	 * @internal
+	 */
 	function getSession(string $username): ?CosmeticSession{
 		if (isset($this->sessions[mb_strtolower($username)])) {
 			return $this->sessions[mb_strtolower($username)];
@@ -87,6 +100,12 @@ class CosmeticManager{
 		return null;
 	}
 
+	/**
+	 * Function deleteSession
+	 * @param string $username
+	 * @return void
+	 * @internal
+	 */
 	function deleteSession(string $username): void{
 		if (isset($this->sessions[$username])) {
 			unset($this->sessions[$username]);
@@ -96,16 +115,18 @@ class CosmeticManager{
 	/**
 	 * Function getPublicCosmetics
 	 * @return Cosmetic[]
+	 * @internal
 	 */
 	function getPublicCosmetics(): array{
 		return $this->publicCosmetics;
 	}
 
 	/**
-	 * Function getSlotCosmetics
+	 * Function getServerCosmetics
 	 * @return array
+	 * @internal
 	 */
-	function getSlotCosmetics(): array{
-		return $this->slotCosmetics;
+	function getServerCosmetics(): array{
+		return $this->serverCosmetics;
 	}
 }

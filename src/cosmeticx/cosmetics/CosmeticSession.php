@@ -23,6 +23,7 @@ use pocketmine\Server;
  * @date 02. Februar, 2022 - 10:53
  * @ide PhpStorm
  * @project PocketMine-Client
+ * @internal
  */
 final class CosmeticSession{
 	protected string $username;
@@ -30,6 +31,7 @@ final class CosmeticSession{
 	protected ?Player $holder = null;
 	/** @var string[] */
 	private array $activeCosmetics = [];
+	private bool $premium;
 
 	/**
 	 * CosmeticSession constructor.
@@ -38,7 +40,9 @@ final class CosmeticSession{
 	 */
 	public function __construct(string $username, Skin $legacySkin){
 		$this->username = $username;
-		$this->legacySkin = $legacySkin;
+		$this->legacySkin = Utils::fixSkinSizeForUs($legacySkin);
+		var_dump(array_keys(json_decode($legacySkin->getGeometryData(), true)));
+		$this->premium = false;
 	}
 
 	/**
@@ -61,10 +65,9 @@ final class CosmeticSession{
 			CosmeticX::sendRequest(new ApiRequest("/cosmetic/activate", [
 				"id"           => $cosmetic->getId(),
 				"skinData"     => Utils::encodeSkinData($this->getHolder()->getSkin()->getSkinData()),
-				"geometry_name" => $this->getHolder()->getSkin()->getGeometryName(),
 				"geometry_data" => $this->getHolder()->getSkin()->getGeometryData(),
 			], true), function (array $data): void{
-				$this->sendSkin($data["buffer"], $data["geometry_name"], $data["geometry_data"]);
+				$this->sendSkin($data["buffer"], $data["geometry_data"]);
 			});
 		}
 	}
@@ -87,16 +90,22 @@ final class CosmeticSession{
 				"geometry_data" => $this->getHolder()->getSkin()->getGeometryData(),
 			], true), function (array $data): void{
 				if (!is_null($data["buffer"])) { //FIXME: remove this line if test is done
-					$this->sendSkin($data["buffer"], $data["geometry_name"], $data["geometry_data"]);
+					$this->sendSkin($data["buffer"], $data["geometry_data"]);
 				} //FIXME: remove this line if test is done
 			});
 		}
 	}
 
-	public function sendSkin(string $buffer, string $geometry_name = null, string $geometry_data = null): void{
+	/**
+	 * Function sendSkin
+	 * @param string $buffer
+	 * @param null|string $geometry_data
+	 * @return void
+	 */
+	public final function sendSkin(string $buffer, string $geometry_data = null): void{
 		try {
 			Utils::saveSkinData($this->getHolder()->getName(), Utils::decodeSkinData($buffer));
-			$this->getHolder()->setSkin(new Skin($this->getHolder()->getSkin()->getSkinId(), Utils::decodeSkinData($buffer), $this->getHolder()->getSkin()->getCapeData(), $geometry_name ?? $this->getHolder()->getSkin()->getGeometryName(), $geometry_data ?? $this->getHolder()->getSkin()->getGeometryData()));
+			$this->getHolder()->setSkin(new Skin($this->getHolder()->getSkin()->getSkinId(), Utils::decodeSkinData($buffer), $this->getHolder()->getSkin()->getCapeData(), $this->getHolder()->getSkin()->getGeometryName(), $geometry_data ?? $this->getHolder()->getSkin()->getGeometryData()));
 			$this->getHolder()->sendSkin();
 		} catch (JsonException $e) {
 			CosmeticX::getInstance()->getLogger()->logException($e);
@@ -125,8 +134,7 @@ final class CosmeticSession{
 	 * @return Player
 	 */
 	public function getHolder(): Player{
-		return is_null($this->holder) ? $this->holder = Server::getInstance()->getPlayerExact($this->username)
-			: $this->holder;
+		return is_null($this->holder) ? $this->holder = Server::getInstance()->getPlayerExact($this->username) : $this->holder;
 	}
 
 	/**
@@ -144,5 +152,22 @@ final class CosmeticSession{
 	 */
 	public function setLegacySkin(Skin $legacySkin): void{
 		$this->legacySkin = $legacySkin;
+	}
+
+	/**
+	 * Function setPremium
+	 * @param bool $premium
+	 * @return void
+	 */
+	public function setPremium(bool $premium): void{
+		$this->premium = $premium;
+	}
+
+	/**
+	 * Function isPremium
+	 * @return bool
+	 */
+	public function isPremium(): bool{
+		return $this->premium;
 	}
 }

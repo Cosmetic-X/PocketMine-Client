@@ -1,4 +1,9 @@
-# Don't touch this config
+# Don't touch this
 protocol: "https"
 host: "cosmetic-x.de"
 refresh-interval: 1800
+
+# Config that you can change without critical issues, lol
+show_locked_cosmetics: true
+enable_waterdog_support: false # if your server network uses WaterdogPE, set this to 'true'.
+rescale skins: true # if this is enabled player-skins will resize to 64x64, otherwise the player cannot use our cosmetics.

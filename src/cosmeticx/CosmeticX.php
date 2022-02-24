@@ -41,9 +41,13 @@ class CosmeticX extends PluginBase{
 	private static string $PROTOCOL = "https";
 	private static string $URL = "cosmetic-x.be";
 	static string $URL_API;
+	static bool $SHOW_LOCKED_COSMETICS = false;
+	static bool $IS_WATERDOG_ENABLED = false;
+	static bool $ENABLE_RESIZING = true;
 
 	private string $token = "TOKEN HERE";
 	private string $holder = "n/a";
+	private string $team = "n/a";
 	private CosmeticXCommand $command;
 	public ?TaskHandler $refresh_interval = null;
 	/** @var Permission[] */
@@ -82,6 +86,8 @@ class CosmeticX extends PluginBase{
 		CosmeticX::$URL = $this->getConfig()->get("host", CosmeticX::$URL);
 		$port = $this->getConfig()->get("port", "");
 		CosmeticX::$URL_API = CosmeticX::$PROTOCOL . "://" . CosmeticX::$URL . (!empty($port) ? ":$port" : "") . "/api";
+		CosmeticX::$SHOW_LOCKED_COSMETICS = $this->getConfig()->get("show_locked_cosmetics", true);
+		CosmeticX::$IS_WATERDOG_ENABLED = $this->getConfig()->get("enable_waterdog_support", false);
 		$this->token = file_get_contents($this->getDataFolder() . "TOKEN.txt");
 	}
 
@@ -109,7 +115,7 @@ class CosmeticX extends PluginBase{
 	 */
 	public function reload(): void{
 		CosmeticManager::getInstance()->resetPublicCosmetics();
-		CosmeticManager::getInstance()->resetSlotCosmetics();
+		CosmeticManager::getInstance()->resetServerCosmetics();
 		if (!is_null($this->refresh_interval)) {
 			$this->refresh_interval->cancel();
 			$this->getScheduler()->scheduleDelayedTask(new ClosureTask(fn () => $this->refresh_interval = $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(fn () => $this->refresh()), $this->getConfig()->get("refresh-interval", 300) * 20)), $this->getConfig()->get("refresh-interval", 300) * 20);
@@ -130,7 +136,7 @@ class CosmeticX extends PluginBase{
 	 */
 	private function refresh(): void{
 		CosmeticManager::getInstance()->resetPublicCosmetics();
-		CosmeticManager::getInstance()->resetSlotCosmetics();
+		CosmeticManager::getInstance()->resetServerCosmetics();
 		$this->getLogger()->debug("Refreshed cosmetics");
 		$this->loadCosmetics();
 	}
@@ -149,11 +155,12 @@ class CosmeticX extends PluginBase{
 				$this->getLogger()->notice("New update available. https://github.com/Cosmetic-X");
 				//TODO: auto update function
 			}
+			$this->team = $data["team"] ?? "n/a";
 			$this->holder = $data["holder"] ?? "n/a";
-			if ($this->holder == "n/a") {
+			if ($this->holder == "n/a" || $this->team == "n/a") {
 				$this->getLogger()->alert("Token is not valid.");
 			} else {
-				$this->getLogger()->notice("Logged in as " . $this->holder);
+				$this->getLogger()->notice("Token is from " . $this->team . " by " . $this->holder);
 				$this->loadCosmetics();
 			}
 		});
@@ -164,26 +171,16 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	private function loadCosmetics(): void{
-		$request = new ApiRequest("/available-cosmetics", [], true);
+		$request = new ApiRequest("/cosmetics", [], true);
 		self::sendRequest($request, function (array $data){
-			foreach ($data as $where => $objs) {
-				foreach ($objs as $obj) {
-					if ($where === "public") {
-						CosmeticManager::getInstance()->registerPublicCosmetics($obj["name"], $obj["display_name"], $obj["id"], (isset($obj["image"]) ? new Image($obj["image"], str_starts_with($obj["image"], "http") ? Image::TYPE_URL : Image::TYPE_PATH) : null));
-					} else if ($where === "slot") {
-						CosmeticManager::getInstance()->registerSlotCosmetic($obj["name"], $obj["display_name"], $obj["id"], (isset($obj["image"]) ? new Image($obj["image"], str_starts_with($obj["image"], "http") ? Image::TYPE_URL : Image::TYPE_PATH) : null));
-					}
-				}
+			foreach ($data as $obj) {
+				CosmeticManager::getInstance()->registerCosmetic((string)$obj["id"], $obj["name"], $obj["display_name"], $obj["owner"], $obj["creator"], (isset($obj["image"]) ? new Image($obj["image"], str_starts_with($obj["image"], "http") ? Image::TYPE_URL : Image::TYPE_PATH) : null));
 			}
-			$publicCosmetics = count(CosmeticManager::getInstance()->getPublicCosmetics());
-			if ($publicCosmetics > 0) {
-				$this->getLogger()->debug("Loaded " . $publicCosmetics . ($publicCosmetics == 1 ? " public-cosmetic"
-						: " public-cosmetics"));
+			if (($cosmetics = count(CosmeticManager::getInstance()->getPublicCosmetics())) > 0) {
+				$this->getLogger()->debug("Loaded " . $cosmetics . " public-cosmetic" . ($cosmetics == 1 ? "" : "s"));
 			}
-			$slotCosmetics = count(CosmeticManager::getInstance()->getPublicCosmetics());
-			if ($slotCosmetics > 0) {
-				$this->getLogger()->debug("Loaded " . $slotCosmetics . ($slotCosmetics == 1 ? " server-cosmetic"
-						: " server-cosmetics"));
+			if (($cosmetics = count(CosmeticManager::getInstance()->getServerCosmetics())) > 0) {
+				$this->getLogger()->debug("Loaded " . $cosmetics . " server-cosmetic" . ($cosmetics == 1 ? "" : "s"));
 			}
 		});
 	}
@@ -196,6 +193,7 @@ class CosmeticX extends PluginBase{
 	 */
 	public static function sendRequest(ApiRequest $request, Closure $onResponse): void{
 		$request->header("token", CosmeticX::getInstance()->token);
+		$request->header("Cosmetic-X", "by xxAROX");
 		Server::getInstance()->getAsyncPool()->submitTask(new SendRequestAsyncTask($request, $onResponse));
 	}
 
@@ -219,6 +217,14 @@ class CosmeticX extends PluginBase{
 			PermissionManager::getInstance()->getPermission(DefaultPermissions::ROOT_CONSOLE)->addChild($permission->getName(), true);
 		}
 		PermissionManager::getInstance()->addPermission($overlord);
+	}
+
+	/**
+	 * Function getTeam
+	 * @return string
+	 */
+	public function getTeam(): string{
+		return $this->team;
 	}
 
 	/**

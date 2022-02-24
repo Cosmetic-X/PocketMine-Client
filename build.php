@@ -7,7 +7,7 @@
 declare(strict_types=1);
 set_time_limit(0);
 ini_set("memory_limit", "-1");
-
+$secure = false;
 $buildOnLocalServer = true;
 $packages = [
 	//EXAMPLE: "xxarox/web-server": ["paths" => ["src/","README.md"], "encode" => true]
@@ -59,24 +59,28 @@ if (is_dir($from . "resources")) {
 	copyDirectory($from . "resources", $to . "resources");
 }
 yaml_emit_file($to . "plugin.yml", $description);
-echo "[INFO]: Plugin files files" . PHP_EOL;
-passthru("composer  --no-dev --no-interaction dump-autoload -o", $result_code);
-if ($result_code != 0) {
-	throw new ErrorException("Error while updated autoloader.");
-}
 
 $excluded = [];
-foreach ($packages as $vendor => $obj) {
-	if ($obj["encode"] ?? false) {
-		$excluded[] = $vendor . "/";
+if (count($packages) > 0) {
+	passthru("composer  --no-dev --no-interaction dump-autoload -o", $result_code);
+	if ($result_code != 0) {
+		throw new ErrorException("Error while updated autoloader.");
+	}
+	foreach ($packages as $vendor => $obj) {
+		if ($obj["encode"] ?? false) {
+			$excluded[] = $vendor . "/";
+		}
 	}
 }
-echo "[INFO]: Encoding plugin.." . PHP_EOL;
-if (getenv("USERNAME") !== false) {
-	require_once "vendor/xxarox/plugin-security/src/Encoder.php";
-	(new \xxAROX\PluginSecurity\Encoder($to, $excluded))->encode();
+
+if ($secure) {
+	echo "[INFO]: Encoding plugin.." . PHP_EOL;
+	if (getenv("USERNAME") !== false) {
+		require_once "vendor/xxarox/plugin-security/src/Encoder.php";
+		(new \xxAROX\PluginSecurity\Encoder($to, $excluded))->encode();
+	}
+	echo "[INFO]: Encoding done!" . PHP_EOL;
 }
-echo "[INFO]: Encoding done!" . PHP_EOL;
 
 if (is_dir($to . "output/")) {
 	$to = $to . "output/";
