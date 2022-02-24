@@ -8,7 +8,7 @@
  * You are NOT allowed to share this plugin with others without the explicit permission from Jan Sohn.
  * You are NOT allowed to run this plugin on your server as source code.
  * You MUST acquire this plugin from official sources.
- * You MAY run this plugin on your server as .phar file.
+ * You MUST run this plugin on your server as compiled .phar file from our releases.
  */
 namespace Frago9876543210\EasyForms\elements;
 use Closure;
@@ -20,7 +20,8 @@ use pocketmine\player\Player;
  * @package Frago9876543210\EasyForms\elements
  * @author xxAROX
  * @date 25.10.2020 - 02:26
- * @project StimoCloud
+ * @project PocketMine-Client
+ * @internal
  */
 class FunctionalButton extends Button{
 	protected ?Closure $onClick = null;
