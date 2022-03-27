@@ -101,6 +101,10 @@ class SendRequestAsyncTask extends AsyncTask{
 				$headers[] = $headerGroup;
 			}
 			$this->setResult(new InternetRequestResult($headers, $body, $httpCode));
+		} catch (InternetException $e) {
+			if (str_starts_with($e->getMessage(), "Failed to connect to ")) {
+				throw new InternetException("Failed to connect to " . $this->url . $this->request->getUri());
+			}
 		} finally {
 			curl_close($ch);
 		}

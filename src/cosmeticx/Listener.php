@@ -30,6 +30,7 @@ use pocketmine\player\XboxLivePlayerInfo;
 use pocketmine\Server;
 use ReflectionClass;
 use ReflectionException;
+use RuntimeException;
 
 
 /**
@@ -49,19 +50,10 @@ class Listener implements \pocketmine\event\Listener{
 	 */
 	public function PlayerCreationEvent(PlayerCreationEvent $event): void{
 		if (Utils::checkForXuid($playerInfo = $event->getNetworkSession()->getPlayerInfo())) {
-			$session = CosmeticManager::getInstance()->addSession($playerInfo->getUsername(), $playerInfo->getSkin());
-			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/" . $playerInfo->getXuid(), [
-				"username" => $playerInfo->getUsername(),
-				"skinData" => Utils::encodeSkinData($playerInfo->getSkin()->getSkinData()),
-				"geometry_name" => $playerInfo->getSkin()->getGeometryName(),
-				"geometry_data" => $playerInfo->getSkin()->getGeometryData(),
-			],
-				true
-			), function (array $data) use ($event, $playerInfo, $session): void{
-				$session->setPremium($data["premium"] ?? false);
-				$session->setLegacySkin(new Skin($playerInfo->getSkin()->getSkinId(), Utils::decodeSkinData($data["legacySkinData"]), $playerInfo->getSkin()->getCapeData(), $data["geometry_name"] ?? $playerInfo->getSkin()->getGeometryName(), $data["geometry_data"] ?? $playerInfo->getSkin()->getGeometryData()));
-				$session->sendSkin($data["buffer"], $data["geometry_data"]);
-			});
+			$session = CosmeticManager::getInstance()->addSession($playerInfo, $playerInfo->getSkin());
+			if (!$session->isInitialized()) {
+				throw new RuntimeException($playerInfo->getUsername() . "'s session is not initialized.");
+			}
 		}
 	}
 
@@ -75,6 +67,7 @@ class Listener implements \pocketmine\event\Listener{
 		if (is_null(CosmeticManager::getInstance()->getSession($event->getPlayer()->getName()))) {
 			CosmeticX::getInstance()->getLogger()->emergency("Session is not initialized for " . $event->getPlayer()->getName());
 			$event->getPlayer()->kick(CosmeticX::getInstance()->getDescription()->getName() . " - Session is not initialized, this shouldn't happened.. :/", "");
+			CosmeticXAPI::setPresence($event->getPlayer());
 		}
 	}
 
@@ -85,13 +78,8 @@ class Listener implements \pocketmine\event\Listener{
 	 * @priority MONITOR
 	 */
 	public function PlayerQuitEvent(PlayerQuitEvent $event): void{
-		if (Utils::checkForXuid($playerInfo = $event->getPlayer()->getPlayerInfo())) {
-			$session = CosmeticManager::getInstance()->getSession($event->getPlayer()->getName());
-			CosmeticX::sendRequest(new ApiRequest("/users/cosmetics/" . $playerInfo->getXuid(), [
-				"active" => $session->getActiveCosmetics(),
-			], true), function (array $data) use ($event): void{
-				CosmeticManager::getInstance()->deleteSession($event->getPlayer()->getName());
-			});
+		if (Utils::checkForXuid($event->getPlayer()->getPlayerInfo())) {
+			CosmeticManager::getInstance()->getSession($event->getPlayer()->getName())?->uninitialize($event);
 		}
 	}
 

@@ -173,6 +173,9 @@ class Utils{
 	 * @internal
 	 */
 	static function json_decode(string $json, bool $assoc = false, int $depth = 512, int $flags = 0): mixed{
+		if (empty($json)) {
+			$json = "[]";
+		}
 		return Comment::parse($json, $assoc, $depth, $flags);
 		//return json_decode(preg_replace("#(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|([\s\t]//.*)|(^//.*)#", '', $json), $assoc, $depth, $flags);
 	}
@@ -185,62 +188,68 @@ class Utils{
 	 * @internal
 	 */
 	static function fixSkinSizeForUs(Skin $skin): Skin{
-		if (CosmeticX::$ENABLE_RESIZING) {
-			if (strlen($skin->getSkinData()) != (64 * 32 * 4)) {
-				$height = $width = intval(sqrt(strlen($skin->getSkinData())) / 2);
-			} else {
-				$height = 32;
-				$width = 64;
-			}
-			$pixelarray = str_split(bin2hex($skin->getSkinData()), 8);
-			$image = imagecreatetruecolor($width, $height);
-			imagealphablending($image, false);//do not touch
-			imagefill($image, 0, 0, imagecolorallocatealpha($image, 0, 0, 0, 127));
-			imagesavealpha($image, true);
-			$position = count($pixelarray) - 1;
-			while (!empty($pixelarray)) {
-				$x = $position % $width;
-				$y = ($position - $x) / $height;
-				$walkable = str_split(array_pop($pixelarray), 2);
-				$color = array_map(function ($val){
+		// BLAME: MOJANG BEGIN
+		var_dump($skin->getGeometryData());
+		if ($skin->getGeometryData() !== "null") {
+			var_dump("format_version: " . Utils::json_decode($skin->getGeometryData(), true)["format_version"] ?? null);
+		}
+		if (isset(CosmeticX::$defaultGeometry[$skin->getGeometryName()])) {
+			$geometryData = json_encode(CosmeticX::$defaultGeometry[$skin->getGeometryName()]);
+		} else {
+			$geometryData = $skin->getGeometryData();
+		}
+		// BLAME: MOJANG END
+		if (strlen($skin->getSkinData()) != (64 * 32 * 4)) {
+			$height = $width = intval(sqrt(strlen($skin->getSkinData())) / 2);
+		} else {
+			$height = 32;
+			$width = 64;
+		}
+		$pixelarray = str_split(bin2hex($skin->getSkinData()), 8);
+		$image = imagecreatetruecolor($width, $height);
+		imagealphablending($image, false);//do not touch
+		imagefill($image, 0, 0, imagecolorallocatealpha($image, 0, 0, 0, 127));
+		imagesavealpha($image, true);
+		$position = count($pixelarray) - 1;
+		while (!empty($pixelarray)) {
+			$x = $position % $width;
+			$y = ($position - $x) / $height;
+			$walkable = str_split(array_pop($pixelarray), 2);
+			$color = array_map(function ($val){
 					return hexdec($val);
 				}, $walkable);
-				$alpha = array_pop($color);
-				$alpha = ((~((int)$alpha)) & 0xff) >> 1;
-				array_push($color, $alpha);
-				if (!isset($color[0])) {
-					$color = [0, 0, 0, 127];
-				} else if (!isset($color[1])) {
-					$color = array_merge($color, [0, 0, 127]);
-				} else if (!isset($color[2])) {
-					$color = array_merge($color, [0, 127]);
-				} else if (!isset($color[3])) {
-					$color = array_merge($color, [127]);
-				}
-				imagesetpixel($image, $x, $y, imagecolorallocatealpha($image, ...$color));
-				$position--;
+			$alpha = array_pop($color);
+			$alpha = ((~((int)$alpha)) & 0xff) >> 1;
+			array_push($color, $alpha);
+			if (!isset($color[0])) {
+				$color = [0, 0, 0, 127];
+			} else if (!isset($color[1])) {
+				$color = array_merge($color, [0, 0, 127]);
+			} else if (!isset($color[2])) {
+				$color = array_merge($color, [0, 127]);
+			} else if (!isset($color[3])) {
+				$color = array_merge($color, [127]);
 			}
-			$oldw = imagesx($image);
-			$oldh = imagesy($image);
-			$temp = imagecreatetruecolor(64, 64);
-			imagecopyresampled($temp, $image, 0, 0, 0, 0, 64, 64, $oldw, $oldh);
-
-
-			$bytes = "";
-			for ($y = 0; $y < imagesy($image); $y++) {
-				for ($x = 0; $x < imagesx($image); $x++) {
-					$rgba = @imagecolorat($image, $x, $y);
-					$a = ((~((int)($rgba >> 24))) << 1) & 0xff;
-					$r = ($rgba >> 16) & 0xff;
-					$g = ($rgba >> 8) & 0xff;
-					$b = $rgba & 0xff;
-					$bytes .= chr($r) . chr($g) . chr($b) . chr($a);
-				}
-			}
-			@imagedestroy($image);
-			return new Skin($skin->getSkinId(), $bytes, $skin->getCapeData(), $skin->getGeometryName(), $skin->getGeometryData());
-		} else {
-			return $skin;
+			imagesetpixel($image, $x, $y, imagecolorallocatealpha($image, ...$color));
+			$position--;
 		}
+		$oldw = imagesx($image);
+		$oldh = imagesy($image);
+		$temp = imagecreatetruecolor(64, 64);
+		imagecopyresampled($temp, $image, 0, 0, 0, 0, 64, 64, $oldw, $oldh);
+
+		$bytes = "";
+		for ($y = 0; $y < imagesy($image); $y++) {
+			for ($x = 0; $x < imagesx($image); $x++) {
+				$rgba = @imagecolorat($image, $x, $y);
+				$a = ((~((int)($rgba >> 24))) << 1) & 0xff;
+				$r = ($rgba >> 16) & 0xff;
+				$g = ($rgba >> 8) & 0xff;
+				$b = $rgba & 0xff;
+				$bytes .= chr($r) . chr($g) . chr($b) . chr($a);
+			}
+		}
+		@imagedestroy($image);
+		return new Skin($skin->getSkinId(), $bytes, $skin->getCapeData(), $skin->getGeometryName(), $geometryData);
 	}
 }

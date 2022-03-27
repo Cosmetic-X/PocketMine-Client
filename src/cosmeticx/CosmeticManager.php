@@ -14,8 +14,11 @@ declare(strict_types=1);
 namespace cosmeticx;
 use cosmeticx\cosmetics\Cosmetic;
 use cosmeticx\cosmetics\CosmeticSession;
+use cosmeticx\utils\Utils;
 use Frago9876543210\EasyForms\elements\Image;
 use pocketmine\entity\Skin;
+use pocketmine\player\PlayerInfo;
+use pocketmine\player\XboxLivePlayerInfo;
 use pocketmine\utils\SingletonTrait;
 
 
@@ -82,15 +85,21 @@ final class CosmeticManager{
 	/**
 	 * Function addSession
 	 * @param string $username
+	 * @param XboxLivePlayerInfo|PlayerInfo $playerInfo
 	 * @param Skin $legacySkin
 	 * @return CosmeticSession
 	 * @internal
 	 */
-	function addSession(string $username, Skin $legacySkin): CosmeticSession{
-		if (!isset($this->sessions[mb_strtolower($username)])) {
-			$this->sessions[mb_strtolower($username)] = new CosmeticSession($username, $legacySkin);
+	function addSession(XboxLivePlayerInfo|PlayerInfo $playerInfo, Skin $legacySkin): CosmeticSession{
+		if (!isset($this->sessions[mb_strtolower($playerInfo->getUsername())])) {
+			$this->sessions[mb_strtolower($playerInfo->getUsername())] = new CosmeticSession($playerInfo->getUsername(), $legacySkin);
 		}
-		return $this->sessions[mb_strtolower($username)];
+		$session = $this->sessions[mb_strtolower($playerInfo->getUsername())];
+
+		if (!$session->isInitialized()) {
+			$session->initialize($playerInfo, $legacySkin);
+		}
+		return $session;
 	}
 
 	/**

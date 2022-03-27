@@ -64,6 +64,11 @@ final class CosmeticXCommand extends Command{
 		return $this->subCommands;
 	}
 
+	/**
+	 * Function loadSubCommand
+	 * @param SubCommand $subCommand
+	 * @return void
+	 */
 	public function loadSubCommand(SubCommand $subCommand): void{
 		$this->subCommands[$subCommand->getName()] = $subCommand;
 		foreach ($subCommand->getAliases() as $alias) {

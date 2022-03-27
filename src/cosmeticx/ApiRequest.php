@@ -33,6 +33,13 @@ class ApiRequest{
 	private array $body;
 	private bool $post_method;
 
+	static string $URI_CHECKOUT = "/";
+	static string $URI_USER_VERIFY = "/users/verify";
+	static string $URI_USER_GET_COSMETICS = "/users/cosmetics/"/*xuid*/;
+	static string $URI_USER_ACTIVATE_COSMETIC = "/users/cosmetics/activate";
+	static string $URI_USER_DEACTIVATE_COSMETIC = "/users/cosmetics/deactivate";
+	static string $URI_USER_RPC_PRESENCE = "/users/rpc";
+
 	/**
 	 * ApiRequest constructor.
 	 * @param string $uri

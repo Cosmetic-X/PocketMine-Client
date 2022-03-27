@@ -15,6 +15,7 @@ namespace cosmeticx;
 use Closure;
 use cosmeticx\command\CosmeticXCommand;
 use cosmeticx\task\async\SendRequestAsyncTask;
+use cosmeticx\utils\Utils;
 use Frago9876543210\EasyForms\elements\Image;
 use Phar;
 use pocketmine\network\mcpe\convert\SkinAdapter;
@@ -45,11 +46,14 @@ class CosmeticX extends PluginBase{
 
 
 	private static string $PROTOCOL = "https";
-	private static string $URL = "cosmetic-x.be";
+	private static string $URL = "cosmetic-x.de";
 	static string $URL_API;
 	static bool $SHOW_LOCKED_COSMETICS = false;
+	static bool $ENABLE_RICH_PRESENCE = false;
+	static ?string $NETWORK = null;
+	static ?string $SERVER = "PocketMine-MP Server";
 	static bool $IS_WATERDOG_ENABLED = false;
-	static bool $ENABLE_RESIZING = true;
+	static array $defaultGeometry = [];
 
 	private string $token = "TOKEN HERE";
 	private string $holder = "n/a";
@@ -88,12 +92,17 @@ class CosmeticX extends PluginBase{
 		}
 		$this->saveDefaultConfig();
 		$this->saveResource("TOKEN.txt");
+		$this->saveResource("geometry.json");
 		CosmeticX::$PROTOCOL = $this->getConfig()->get("protocol", CosmeticX::$PROTOCOL);
 		CosmeticX::$URL = $this->getConfig()->get("host", CosmeticX::$URL);
 		$port = $this->getConfig()->get("port", "");
 		CosmeticX::$URL_API = CosmeticX::$PROTOCOL . "://" . CosmeticX::$URL . (!empty($port) ? ":$port" : "") . "/api";
 		CosmeticX::$SHOW_LOCKED_COSMETICS = $this->getConfig()->get("show_locked_cosmetics", true);
 		CosmeticX::$IS_WATERDOG_ENABLED = $this->getConfig()->get("enable_waterdog_support", false);
+		CosmeticX::$ENABLE_RICH_PRESENCE = $this->getConfig()->get("enable-rich-presence", false);
+		CosmeticX::$NETWORK = $this->getConfig()->get("network", "???");
+		CosmeticX::$SERVER = $this->getConfig()->get("server", "???");
+		CosmeticX::$defaultGeometry = Utils::json_decode(file_get_contents($this->getDataFolder() . "geometry.json"), true);
 		$this->token = file_get_contents($this->getDataFolder() . "TOKEN.txt");
 	}
 
@@ -156,7 +165,7 @@ class CosmeticX extends PluginBase{
 			$this->getLogger()->alert("Token is not set, type '/" . $this->command->getName() . " reload' if set.");
 			return;
 		}
-		self::sendRequest(new ApiRequest("/"), function (array $data){
+		self::sendRequest(new ApiRequest(ApiRequest::$URI_CHECKOUT), function (array $data){
 			if (version_compare($data["lastest-client-version"], explode("+", $this->getDescription()->getVersion())[0]) == 1) {
 				$this->getLogger()->notice("New update available. https://github.com/Cosmetic-X");
 				//TODO: auto update function
