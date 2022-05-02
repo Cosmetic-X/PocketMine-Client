@@ -23,8 +23,8 @@ jobs:
 
       - name: Composer
         run: |
-          composer update --no-interaction --no-dev --ignore-platform-reqs
-          composer install --no-suggest --no-interaction --no-dev --ignore-platform-reqs
+          composer update --no-interaction --ignore-platform-reqs
+          composer install --no-suggest --no-interaction --ignore-platform-reqs
 
 
       - name: "Get data"
