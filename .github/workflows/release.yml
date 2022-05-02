@@ -18,16 +18,18 @@ jobs:
         with:
           php-version: 8.0
 
-      - name: Install dependencies
+      - name: composer update --no-dev
         uses: php-actions/composer@v6
         with:
-          command: update
+          command: update --no-dev
           dev: no
           php_version: 8.0
+          php_extenstions: yaml gd
 
-      - name: Install dependencies
+      - name: composer install --no-dev
         uses: php-actions/composer@v6
         with:
+          command: install --no-dev
           dev: no
           php_version: 8.0
 
