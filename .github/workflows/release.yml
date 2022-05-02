@@ -24,8 +24,6 @@ jobs:
         with:
           command: update --no-dev
           dev: no
-          php_version: 8.0
-          php_extensions: yaml gd
           ssh_key: ${{ secrets.SSH_KEY }}
           ssh_key_pub: ${{ secrets.SSH_KEY_PUB }}
 
@@ -34,8 +32,6 @@ jobs:
         with:
           command: install --no-dev
           dev: no
-          php_version: 8.0
-          php_extensions: yaml gd
           ssh_key: ${{ secrets.SSH_KEY }}
           ssh_key_pub: ${{ secrets.SSH_KEY_PUB }}
 
