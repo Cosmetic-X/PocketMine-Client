@@ -21,8 +21,8 @@ jobs:
 
       - name: Install Composer
         run: |
-          composer update --no-interaction --no-dev
-          composer install --no-suggest --no-interaction --no-dev
+          composer update --no-interaction --no-dev --ignore-platform-reqs
+          composer install --no-suggest --no-interaction --no-dev --ignore-platform-reqs
 
 
       - name: "Get data"
