@@ -7,7 +7,7 @@
 declare(strict_types=1);
 set_time_limit(0);
 ini_set("memory_limit", "-1");
-$secure = false;
+$secure = getenv("COMPUTERNAME") !== "JANPC";
 $buildOnLocalServer = true;
 $packages = [
 	//EXAMPLE: "xxarox/web-server": ["paths" => ["src/","README.md"], "encode" => true]
