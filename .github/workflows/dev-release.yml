@@ -17,14 +17,13 @@ jobs:
         uses: shivammathur/setup-php@2.12.0
         with:
           php-version: 8.0
+          extensions: yaml gd2 gd
 
-      - name: Get composer
+      - name: Install Composer
         run: |
-          php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-          php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40b5f787e49f22d4c2f19492ac310e8cba5b96ac8b64115ac402c8cd292b8a03482574915d1a8') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-          php composer-setup.php
-          php -r "unlink('composer-setup.php');"
-          composer install --no-dev
+          composer update --no-interaction --no-dev --ignore-platform-reqs
+          composer install --no-suggest --no-interaction --no-dev --ignore-platform-reqs
+
 
       - name: "Get data"
         id: metadata
