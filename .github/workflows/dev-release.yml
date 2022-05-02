@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         uses: php-actions/composer@v6
         with:
-          command: composer install --no-dev --no-interaction
+          command: install --no-dev --no-interaction
           php_version: 8.0
 
       - name: "Get data"
