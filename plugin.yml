@@ -3,7 +3,7 @@ authors:
   - "BauboLP"
   - "xxAROX"
 website: "https://cosmetic-x.de"
-version: "1.0+dev"
+version: "1.0.0"
 description: "Cosmetic-X client for PocketMine-MP"
 
 api:
