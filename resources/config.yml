@@ -9,5 +9,5 @@ enable_waterdog_support: false # if your server network uses WaterdogPE, set thi
 
 # Rich Presence config
 enable-rich-presence: false
-network: "localhost™"
+network: "localhost"
 server: "PocketMine-MP Server"
