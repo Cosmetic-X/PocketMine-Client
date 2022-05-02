@@ -32,6 +32,7 @@ jobs:
           command: install --no-dev
           dev: no
           php_version: 8.0
+          php_extensions: yaml gd
 
       - name: "Get data"
         id: metadata
