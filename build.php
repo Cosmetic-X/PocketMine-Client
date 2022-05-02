@@ -7,6 +7,7 @@
 declare(strict_types=1);
 set_time_limit(0);
 ini_set("memory_limit", "-1");
+$enable_version_suffix = isset(getopt("vs")["vs"]);
 $secure = getenv("COMPUTERNAME") !== "JANPC";
 $buildOnLocalServer = true;
 $packages = [
@@ -18,7 +19,7 @@ $startTime = microtime(true);
 $from = getcwd() . DIRECTORY_SEPARATOR;
 $description = yaml_parse_file($from . "plugin.yml");
 $to = __DIR__ . DIRECTORY_SEPARATOR . "out" . DIRECTORY_SEPARATOR . $description["name"] . DIRECTORY_SEPARATOR;
-$outputPath = $from . "out" . DIRECTORY_SEPARATOR . $description["name"] . "_v" . $description["version"];
+$outputPath = $from . "out" . DIRECTORY_SEPARATOR . $description["name"] . ($enable_version_suffix ? "_v" . $description["version"] : "");
 echo "[INFO]: Starting.." . PHP_EOL;
 @mkdir($to, 0777, true);
 cleanDirectory($to);
@@ -92,7 +93,7 @@ if ($buildOnLocalServer && is_dir("C:/Users/" . getenv("USERNAME") . "/Desktop/p
 	$outputPath = "C:/Users/" . getenv("USERNAME") . "/Desktop/pmmp" . (is_array($description["api"])
 			? explode(".", $description["api"][0])[0]
 			: (is_string($description["api"]) ? explode(".", $description["api"])[0]
-				: "???")) . "/plugins" . DIRECTORY_SEPARATOR . $description["name"] . "_v" . $description["version"];
+				: "???")) . "/plugins" . DIRECTORY_SEPARATOR . $description["name"] . ($enable_version_suffix ? "_v" . $description["version"] : "");
 	generatePhar($outputPath, $to);
 }
 /**
