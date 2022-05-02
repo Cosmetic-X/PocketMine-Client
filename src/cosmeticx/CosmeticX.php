@@ -90,6 +90,7 @@ class CosmeticX extends PluginBase{
 			$this->getServer()->getPluginManager()->disablePlugin($this);
 			return;
 		}
+		include_once __DIR__ . "/functions.php";
 		$this->saveDefaultConfig();
 		$this->saveResource("TOKEN.txt");
 		$this->saveResource("geometry.json");
@@ -167,7 +168,7 @@ class CosmeticX extends PluginBase{
 		}
 		self::sendRequest(new ApiRequest(ApiRequest::$URI_CHECKOUT), function (array $data){
 			if (version_compare($data["lastest-client-version"], explode("+", $this->getDescription()->getVersion())[0]) == 1) {
-				$this->getLogger()->notice("New update available. https://github.com/Cosmetic-X");
+				$this->getLogger()->notice("New update available. https://cosmetic-x.de/downloads/PocketMine-Client/" . $data["lastest-client-version"]);
 				//TODO: auto update function
 			}
 			$this->team = $data["team"] ?? "n/a";
@@ -188,6 +189,7 @@ class CosmeticX extends PluginBase{
 	private function loadCosmetics(): void{
 		$request = new ApiRequest("/cosmetics", [], true);
 		self::sendRequest($request, function (array $data){
+			var_dump($data);
 			foreach ($data as $obj) {
 				CosmeticManager::getInstance()->registerCosmetic((string)$obj["id"], $obj["name"], $obj["display_name"], $obj["owner"], $obj["creator"], (isset($obj["image"]) ? new Image($obj["image"], str_starts_with($obj["image"], "http") ? Image::TYPE_URL : Image::TYPE_PATH) : null));
 			}

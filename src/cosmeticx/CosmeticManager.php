@@ -116,6 +116,15 @@ final class CosmeticManager{
 	}
 
 	/**
+	 * Function getSessionOrThrow
+	 * @param string $username
+	 * @return CosmeticSession
+	 */
+	function getSessionOrThrow(string $username): CosmeticSession{
+		return $this->sessions[mb_strtolower($username)] ?? throw new \InvalidArgumentException("Player $username is not online!");
+	}
+
+	/**
 	 * Function deleteSession
 	 * @param string $username
 	 * @return void

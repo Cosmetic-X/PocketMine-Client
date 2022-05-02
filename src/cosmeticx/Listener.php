@@ -12,6 +12,7 @@
  */
 declare(strict_types=1);
 namespace cosmeticx;
+use cosmeticx\generic\presence\DiscordRichPresence;
 use cosmeticx\utils\Utils;
 use JsonMapper_Exception;
 use pocketmine\entity\Skin;
@@ -67,7 +68,7 @@ class Listener implements \pocketmine\event\Listener{
 		if (is_null(CosmeticManager::getInstance()->getSession($event->getPlayer()->getName()))) {
 			CosmeticX::getInstance()->getLogger()->emergency("Session is not initialized for " . $event->getPlayer()->getName());
 			$event->getPlayer()->kick(CosmeticX::getInstance()->getDescription()->getName() . " - Session is not initialized, this shouldn't happened.. :/", "");
-			CosmeticXAPI::setPresence($event->getPlayer());
+			CosmeticXAPI::setPresence(DiscordRichPresence::default($event->getPlayer()));
 		}
 	}
 

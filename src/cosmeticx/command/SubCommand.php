@@ -13,6 +13,7 @@
 declare(strict_types=1);
 namespace cosmeticx\command;
 use pocketmine\command\CommandSender;
+use pocketmine\player\Player;
 
 
 /**
@@ -83,5 +84,11 @@ abstract class SubCommand{
 		return $this->permission;
 	}
 
+	/**
+	 * Function execute
+	 * @param CommandSender $sender
+	 * @param array $args
+	 * @return void
+	 */
 	abstract public function execute(CommandSender $sender, array $args): void;
 }

@@ -19,6 +19,7 @@ use cosmeticx\command\subcommand\MenuSubCommand;
 use cosmeticx\command\subcommand\PermissionsSubCommand;
 use cosmeticx\command\subcommand\ReloadSubCommand;
 use cosmeticx\command\subcommand\SlotCosmeticsMenuSubCommand;
+use cosmeticx\command\subcommand\VerifySubCommand;
 use cosmeticx\CosmeticX;
 use pocketmine\command\Command;
 use pocketmine\command\CommandMap;
@@ -54,6 +55,7 @@ final class CosmeticXCommand extends Command{
 		$this->loadSubCommand(new SlotCosmeticsMenuSubCommand("slot", "Shows Slot cosmetic menu."));
 		$this->loadSubCommand(new EncodeSubCommand("encode", "Encode cosmetic to the correct file format."));
 		$this->loadSubCommand(new PermissionsSubCommand("permissions", "Show all permissions.", ["perms"]));
+		$this->loadSubCommand(new VerifySubCommand("verify", "Verify user account for exclusive cosmetics.", ["v"]));
 	}
 
 	/**

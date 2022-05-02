@@ -117,7 +117,7 @@ final class CosmeticSession{
 	 */
 	public final function sendSkin(string $buffer, string $geometry_data = null): void{
 		try {
-			Utils::saveSkinData($this->getHolder()->getName(), Utils::decodeSkinData($buffer));
+			//Utils::saveSkinData($this->getHolder()->getName(), Utils::decodeSkinData($buffer));
 			$this->getHolder()->setSkin(new Skin($this->getHolder()->getSkin()->getSkinId(), Utils::decodeSkinData($buffer), $this->getHolder()->getSkin()->getCapeData(), $this->getHolder()->getSkin()->getGeometryName(), $geometry_data ?? $this->getHolder()->getSkin()->getGeometryData()));
 			$this->getHolder()->sendSkin();
 		} catch (JsonException $e) {

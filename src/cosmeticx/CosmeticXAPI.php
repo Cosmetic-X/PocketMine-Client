@@ -13,6 +13,7 @@
 
 declare(strict_types=1);
 namespace cosmeticx;
+use cosmeticx\generic\presence\DiscordRichPresence;
 use pocketmine\player\Player;
 
 
@@ -29,29 +30,17 @@ class CosmeticXAPI{
 	 * Function setPresence
 	 * @param Player $player
 	 * @param null|int $ends_at
+	 * @param null|string $network
+	 * @param null|string $server
 	 * @return void
 	 */
-	public static function setPresence(Player $player, int $ends_at = null): void{
-		$body = [
-			"gamertag" => $player->getPlayerInfo()->getUsername(),
-			"server" => CosmeticX::$SERVER,
-			"network" => CosmeticX::$NETWORK,
-		];
-		if (!is_null($ends_at)) {
-			$body["ends_at"] = $ends_at;
+	public static function setPresence(DiscordRichPresence $presence): void{
+		if (CosmeticX::$ENABLE_RICH_PRESENCE) {
+			CosmeticX::sendRequest(new ApiRequest(ApiRequest::$URI_USER_RPC_PRESENCE, $presence->jsonSerialize(), true), function (array $responseData): void{
+				if (isset($responseData["error"])) {
+					CosmeticX::getInstance()->getLogger()->error("Error while setting presence: " . $responseData["error"]);
+				}
+			});
 		}
-		CosmeticX::sendRequest(new ApiRequest(ApiRequest::$URI_USER_RPC_PRESENCE, $body, true), function (array $responseData): void{});
-	}
-
-	/**
-	 * Function setOnlyNetworkPresence
-	 * @param Player $player
-	 * @return void
-	 */
-	public static function setOnlyNetworkPresence(Player $player): void{
-		CosmeticX::sendRequest(new ApiRequest(ApiRequest::$URI_USER_RPC_PRESENCE, [
-			"gamertag" => $player->getPlayerInfo()->getUsername(),
-			"network" => CosmeticX::$NETWORK,
-		], true), function (array $responseData): void{});
 	}
 }

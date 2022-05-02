@@ -117,11 +117,12 @@ class Utils{
 			imagesetpixel($image, $x, $y, imagecolorallocatealpha($image, ...$color));
 			$position--;
 		}
-		@imagepng($image, CosmeticX::getInstance()->getDataFolder() . ($uniqid=uniqid("temp_", true)) . ".temp");
+		$filename = tempnam(CosmeticX::getInstance()->getDataFolder(), "Skin");
+		@imagepng($image, $filename);
 		@imagedestroy($image);
-		$image_data = file_get_contents(CosmeticX::getInstance()->getDataFolder() . "$uniqid.temp");
-		if (is_file(CosmeticX::getInstance()->getDataFolder() . "$uniqid.temp")) {
-			unlink(CosmeticX::getInstance()->getDataFolder() . "$uniqid.temp");
+		$image_data = file_get_contents($filename);
+		if (is_file($filename)) {
+			unlink($filename);
 		}
 		return base64_encode($image_data);
 	}
