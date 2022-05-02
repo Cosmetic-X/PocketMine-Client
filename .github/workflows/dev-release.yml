@@ -17,6 +17,7 @@ jobs:
         uses: shivammathur/setup-php@2.12.0
         with:
           php-version: 8.0
+          extensions: yaml gd
 
       - name: composer update --no-dev
         uses: php-actions/composer@v6
@@ -24,7 +25,9 @@ jobs:
           command: update --no-dev
           dev: no
           php_version: 8.0
-          php_extenstions: yaml gd
+          php_extensions: yaml gd
+          ssh_key: ${{ secrets.SSH_KEY }}
+          ssh_key_pub: ${{ secrets.SSH_KEY_PUB }}
 
       - name: composer install --no-dev
         uses: php-actions/composer@v6
@@ -33,6 +36,8 @@ jobs:
           dev: no
           php_version: 8.0
           php_extensions: yaml gd
+          ssh_key: ${{ secrets.SSH_KEY }}
+          ssh_key_pub: ${{ secrets.SSH_KEY_PUB }}
 
       - name: "Get data"
         id: metadata
