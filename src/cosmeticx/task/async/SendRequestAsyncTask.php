@@ -2,7 +2,13 @@
 /*
  * Copyright (c) Jan Sohn
  * All rights reserved.
- * This plugin is under GPL license
+ * Only people with the explicit permission from Jan Sohn are allowed to modify, share or distribute this code.
+ *
+ * You are NOT allowed to do any kind of modification to this plugin.
+ * You are NOT allowed to share this plugin with others without the explicit permission from Jan Sohn.
+ * You are NOT allowed to run this plugin on your server as source code.
+ * You MUST acquire this plugin from official sources.
+ * You MUST run this plugin on your server as compiled .phar file from our releases.
  */
 declare(strict_types=1);
 namespace cosmeticx\task\async;
@@ -12,7 +18,6 @@ use cosmeticx\CosmeticX;
 use GlobalLogger;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\utils\AssumptionFailedError;
-use pocketmine\utils\Internet;
 use pocketmine\utils\InternetException;
 use pocketmine\utils\InternetRequestResult;
 use pocketmine\utils\Utils;
@@ -96,6 +101,10 @@ class SendRequestAsyncTask extends AsyncTask{
 				$headers[] = $headerGroup;
 			}
 			$this->setResult(new InternetRequestResult($headers, $body, $httpCode));
+		} catch (InternetException $e) {
+			if (str_starts_with($e->getMessage(), "Failed to connect to ")) {
+				throw new InternetException("Failed to connect to " . $this->url . $this->request->getUri());
+			}
 		} finally {
 			curl_close($ch);
 		}
@@ -108,19 +117,23 @@ class SendRequestAsyncTask extends AsyncTask{
 	public function onCompletion(): void{
 		/** @var InternetRequestResult $result */
 		if (!is_null($result = $this->getResult())) {
-			if ($result->getCode() >= 400 && $result->getCode() < 600) {
-				CosmeticX::getInstance()->getLogger()->error("[API-ERROR] [" .$this->request->getUri() . "]: {$result->getBody()}");
-				return;
+			if (in_array($result->getCode(), range(100, 399))) { // Good
+				try {
+					$result = json_decode($result->getBody(), true, 512, JSON_THROW_ON_ERROR);
+					($this->onResponse)($result);
+				} catch (Throwable $e) {
+					CosmeticX::getInstance()->getLogger()->error($this->url . $this->request->getUri());
+					CosmeticX::getInstance()->getLogger()->logException($e);
+				}
 			}
-			try {
-				$result = json_decode($result->getBody(), true, 512, JSON_THROW_ON_ERROR);
-				($this->onResponse)($result);
-			} catch (Throwable $e) {
-				GlobalLogger::get()->error($this->url . $this->request->getUri());
-				GlobalLogger::get()->logException($e);
+			else if (in_array($result->getCode(), range(400, 499))) { // Client-Errors
+				CosmeticX::getInstance()->getLogger()->error("[CLIENT-ERROR] [" .$this->request->getUri() . "]: " . $result->getBody());
+			}
+			else if (in_array($result->getCode(), range(500, 599))) { // Server-Errors
+				CosmeticX::getInstance()->getLogger()->error("[API-ERROR] [" .$this->request->getUri() . "]: " . $result->getBody());
 			}
 		} else {
-			CosmeticX::getInstance()->getLogger()->error("[API-ERROR] [" . $this->url . $this->request->getUri() . "]: got null, that's not good");
+			CosmeticX::getInstance()->getLogger()->error("[JUST-IN-CASE-ERROR] [" . $this->url . $this->request->getUri() . "]: got null, that's not good");
 		}
 	}
 }

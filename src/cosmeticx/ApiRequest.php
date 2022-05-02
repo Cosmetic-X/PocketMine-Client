@@ -2,7 +2,13 @@
 /*
  * Copyright (c) Jan Sohn
  * All rights reserved.
- * This plugin is under GPL license
+ * Only people with the explicit permission from Jan Sohn are allowed to modify, share or distribute this code.
+ *
+ * You are NOT allowed to do any kind of modification to this plugin.
+ * You are NOT allowed to share this plugin with others without the explicit permission from Jan Sohn.
+ * You are NOT allowed to run this plugin on your server as source code.
+ * You MUST acquire this plugin from official sources.
+ * You MUST run this plugin on your server as compiled .phar file from our releases.
  */
 declare(strict_types=1);
 namespace cosmeticx;
@@ -26,6 +32,13 @@ class ApiRequest{
 	private array $headers = [];
 	private array $body;
 	private bool $post_method;
+
+	static string $URI_CHECKOUT = "/";
+	static string $URI_USER_VERIFY = "/users/verify";
+	static string $URI_USER_GET_COSMETICS = "/users/cosmetics/"/*xuid*/;
+	static string $URI_USER_ACTIVATE_COSMETIC = "/users/cosmetics/activate";
+	static string $URI_USER_DEACTIVATE_COSMETIC = "/users/cosmetics/deactivate";
+	static string $URI_USER_RPC_PRESENCE = "/users/rpc";
 
 	/**
 	 * ApiRequest constructor.

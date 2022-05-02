@@ -1,5 +1,13 @@
-# Don't touch this config
+# Don't touch this
 protocol: "https"
 host: "cosmetic-x.de"
 refresh-interval: 1800
-auto-update: true
+
+# Config that you can change without critical issues, lol
+show_locked_cosmetics: true
+enable_waterdog_support: false # if your server network uses WaterdogPE, set this to 'true'.
+
+# Rich Presence config
+enable-rich-presence: false
+network: "localhost™"
+server: "PocketMine-MP Server"

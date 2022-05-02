@@ -2,7 +2,13 @@
 /*
  * Copyright (c) Jan Sohn
  * All rights reserved.
- * This plugin is under GPL license
+ * Only people with the explicit permission from Jan Sohn are allowed to modify, share or distribute this code.
+ *
+ * You are NOT allowed to do any kind of modification to this plugin.
+ * You are NOT allowed to share this plugin with others without the explicit permission from Jan Sohn.
+ * You are NOT allowed to run this plugin on your server as source code.
+ * You MUST acquire this plugin from official sources.
+ * You MUST run this plugin on your server as compiled .phar file from our releases.
  */
 declare(strict_types=1);
 namespace cosmeticx\command;
@@ -13,6 +19,7 @@ use cosmeticx\command\subcommand\MenuSubCommand;
 use cosmeticx\command\subcommand\PermissionsSubCommand;
 use cosmeticx\command\subcommand\ReloadSubCommand;
 use cosmeticx\command\subcommand\SlotCosmeticsMenuSubCommand;
+use cosmeticx\command\subcommand\VerifySubCommand;
 use cosmeticx\CosmeticX;
 use pocketmine\command\Command;
 use pocketmine\command\CommandMap;
@@ -41,13 +48,14 @@ final class CosmeticXCommand extends Command{
 	public function __construct(){
 		parent::__construct("cosmeticx", "Cosmetic-X command", "§cUsage: §7/cosmeticx help", ["cx"]);
 		$this->setPermission("cosmetic-x.command");
-		$this->loadSubCommand(new HelpSubCommand("help", ["?"]));
-		$this->loadSubCommand(new InfoSubCommand("info", ["i"]));
-		$this->loadSubCommand(new ReloadSubCommand("reload", ["rl"]));
-		$this->loadSubCommand(new MenuSubCommand("menu", ["public"]));
-		$this->loadSubCommand(new SlotCosmeticsMenuSubCommand("slot-cosmetics", ["slot", "sc"]));
-		$this->loadSubCommand(new EncodeSubCommand("encode"));
-		$this->loadSubCommand(new PermissionsSubCommand("permissions", ["perms"]));
+		$this->loadSubCommand(new HelpSubCommand("help", "Info sub-command.", ["?"]));
+		$this->loadSubCommand(new InfoSubCommand("info", "Info sub-command.", ["i"]));
+		$this->loadSubCommand(new ReloadSubCommand("reload", "Reload sub-command.", ["rl"]));
+		$this->loadSubCommand(new MenuSubCommand("menu", "Shows public cosmetic menu.", ["public"]));
+		$this->loadSubCommand(new SlotCosmeticsMenuSubCommand("slot", "Shows Slot cosmetic menu."));
+		$this->loadSubCommand(new EncodeSubCommand("encode", "Encode cosmetic to the correct file format."));
+		$this->loadSubCommand(new PermissionsSubCommand("permissions", "Show all permissions.", ["perms"]));
+		$this->loadSubCommand(new VerifySubCommand("verify", "Verify user account for exclusive cosmetics.", ["v"]));
 	}
 
 	/**
@@ -58,6 +66,11 @@ final class CosmeticXCommand extends Command{
 		return $this->subCommands;
 	}
 
+	/**
+	 * Function loadSubCommand
+	 * @param SubCommand $subCommand
+	 * @return void
+	 */
 	public function loadSubCommand(SubCommand $subCommand): void{
 		$this->subCommands[$subCommand->getName()] = $subCommand;
 		foreach ($subCommand->getAliases() as $alias) {
@@ -84,7 +97,7 @@ final class CosmeticXCommand extends Command{
 			} else if (isset($this->aliasSubCommands[$subCommandName])) {
 				$subCommand = $this->aliasSubCommands[$subCommandName];
 			} else {
-				$sender->sendMessage("Unknown sub-command '{$subCommandName}'.");
+				$sender->sendMessage("Unknown sub-command '" . $subCommandName . "'.");
 				return;
 			}
 			if ($subCommand instanceof PlayerSubCommand && !$sender instanceof Player) {
@@ -103,7 +116,7 @@ final class CosmeticXCommand extends Command{
 			try {
 				$subCommand->execute($sender, $args);
 			} catch (Throwable $throwable) {
-				$sender->sendMessage("§cError while executing sub-command '{$subCommand->getName()}'");
+				$sender->sendMessage("§cError while executing sub-command '" . $subCommand->getName() . "'");
 				CosmeticX::getInstance()->getLogger()->logException($throwable);
 			}
 		}

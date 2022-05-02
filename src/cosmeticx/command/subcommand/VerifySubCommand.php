@@ -20,14 +20,14 @@ use pocketmine\player\Player;
 
 
 /**
- * Class SlotCosmeticsMenuSubCommand
+ * Class VerifySubCommand
  * @package cosmeticx\command\subcommand
  * @author Jan Sohn / xxAROX
- * @date 02. Februar, 2022 - 02:17
+ * @date 02. May, 2022 - 13:57
  * @ide PhpStorm
  * @project PocketMine-Client
  */
-class SlotCosmeticsMenuSubCommand extends PlayerSubCommand{
+class VerifySubCommand extends PlayerSubCommand{
 	/**
 	 * Function execute
 	 * @param Player $sender
@@ -35,6 +35,6 @@ class SlotCosmeticsMenuSubCommand extends PlayerSubCommand{
 	 * @return void
 	 */
 	public function execute(CommandSender $sender, array $args): void{
-		BasicForms::getInstance()->sendSlotCosmeticsForm($sender);
+		BasicForms::getInstance()->sendVerifyForm($sender);
 	}
 }

@@ -1,12 +1,19 @@
 <?php
 /*
- * Copyright (c) 2021. Jan Sohn.
+ * Copyright (c) Jan Sohn
  * All rights reserved.
- * I don't want anyone to use my source code without permission.
+ * Only people with the explicit permission from Jan Sohn are allowed to modify, share or distribute this code.
+ *
+ * You are NOT allowed to do any kind of modification to this plugin.
+ * You are NOT allowed to share this plugin with others without the explicit permission from Jan Sohn.
+ * You are NOT allowed to run this plugin on your server as source code.
+ * You MUST acquire this plugin from official sources.
+ * You MUST run this plugin on your server as compiled .phar file from our releases.
  */
 declare(strict_types=1);
 namespace cosmeticx\command;
 use pocketmine\command\CommandSender;
+use pocketmine\player\Player;
 
 
 /**
@@ -19,6 +26,7 @@ use pocketmine\command\CommandSender;
  */
 abstract class SubCommand{
 	private string $name;
+	private string $description;
 	/** @var string[] */
 	private array $aliases;
 	private ?string $permission = null;
@@ -26,10 +34,12 @@ abstract class SubCommand{
 	/**
 	 * SubCommand constructor.
 	 * @param string $name
+	 * @param string $description
 	 * @param array $aliases
 	 */
-	public function __construct(string $name, array $aliases = []){
+	public function __construct(string $name, string $description = "No description provided.", array $aliases = []){
 		$this->name = strtolower($name);
+		$this->description = $description;
 		$this->aliases = array_map(fn(string $alias) => strtolower($alias), $aliases);
 	}
 
@@ -39,6 +49,14 @@ abstract class SubCommand{
 	 */
 	public final function getName(): string{
 		return $this->name;
+	}
+
+	/**
+	 * Function getDescription
+	 * @return string
+	 */
+	public function getDescription(): string{
+		return $this->description;
 	}
 
 	/**
@@ -66,5 +84,11 @@ abstract class SubCommand{
 		return $this->permission;
 	}
 
+	/**
+	 * Function execute
+	 * @param CommandSender $sender
+	 * @param array $args
+	 * @return void
+	 */
 	abstract public function execute(CommandSender $sender, array $args): void;
 }

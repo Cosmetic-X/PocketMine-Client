@@ -2,6 +2,17 @@
     "name": "cosmetic-x/pocketmine-client",
     "type": "project",
     "minimum-stability": "dev",
+    "config": {
+        "github-oauth": {
+            "github.com": "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"
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:xxAROX/plugin-security.git"
+        }
+    ],
     "require": {
         "php": "^8.0",
         "ext-curl": "*",
@@ -11,12 +22,16 @@
     },
     "require-dev": {
         "pocketmine/pocketmine-mp": "^4",
-        "xxarox/waterdogpe-login-extra-data-fix": "dev-main"
+        "xxarox/waterdogpe-login-extra-data-fix": "dev-main",
+        "xxarox/plugin-security": "dev-main"
     },
     "autoload": {
         "psr-4": {
             "": "src/"
-        }
+        },
+        "files": [
+            "src/cosmeticx/functions.php"
+        ]
     },
     "authors": [
         {

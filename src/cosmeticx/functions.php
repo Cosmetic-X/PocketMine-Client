@@ -10,15 +10,15 @@
  * You MUST acquire this plugin from official sources.
  * You MUST run this plugin on your server as compiled .phar file from our releases.
  */
-declare(strict_types=1);
-namespace cosmeticx\command;
+use cosmeticx\CosmeticXAPI;
+use cosmeticx\generic\presence\DiscordRichPresence;
+
+
 /**
- * Class ConsoleSubCommand
- * @package cosmeticx\command
- * @author Jan Sohn / xxAROX
- * @date 11. Dezember, 2021 - 20:45
- * @ide PhpStorm
- * @project PocketMine-Client
+ * Function setUserPresence
+ * @param DiscordRichPresence $presence
+ * @return void
  */
-abstract class ConsoleSubCommand extends SubCommand{
+function setUserPresence(DiscordRichPresence $presence) {
+	CosmeticXAPI::setPresence($presence);
 }

@@ -2,7 +2,13 @@
 /*
  * Copyright (c) Jan Sohn
  * All rights reserved.
- * This plugin is under GPL license
+ * Only people with the explicit permission from Jan Sohn are allowed to modify, share or distribute this code.
+ *
+ * You are NOT allowed to do any kind of modification to this plugin.
+ * You are NOT allowed to share this plugin with others without the explicit permission from Jan Sohn.
+ * You are NOT allowed to run this plugin on your server as source code.
+ * You MUST acquire this plugin from official sources.
+ * You MUST run this plugin on your server as compiled .phar file from our releases.
  */
 declare(strict_types=1);
 namespace cosmeticx\cosmetics;
@@ -19,29 +25,29 @@ use Ramsey\Uuid\Uuid;
  * @project PocketMine-Client
  */
 class Cosmetic{
-	const PUBLIC = 0;
-	const SLOT   = 1;
-
 	private string $id;
 	private string $name;
 	private string $display_name;
+	private ?string $owner;
 	private ?Image $image;
-	private bool $public;
+	private string $creator;
 
 	/**
 	 * Cosmetic constructor.
+	 * @param string $id
 	 * @param string $name
 	 * @param string $display_name
-	 * @param null|string $id
+	 * @param string $creator
+	 * @param null|string $owner
 	 * @param null|Image $image
-	 * @param int $type
 	 */
-	public function __construct(string $name, string $display_name, string $id = null, ?Image $image = null, int $type = self::PUBLIC){
-		$this->id = $id ?? Uuid::uuid4()->toString();
+	public function __construct(string $id, string $name, string $display_name, string $creator, ?string $owner = null, ?Image $image = null){
+		$this->id = $id;
 		$this->name = $name;
 		$this->display_name = $display_name;
 		$this->image = $image;
-		$this->public = $type == self::PUBLIC;
+		$this->creator = $creator;
+		$this->owner = $owner;
 	}
 
 	/**
@@ -77,18 +83,18 @@ class Cosmetic{
 	}
 
 	/**
-	 * Function isPublic
-	 * @return bool
+	 * Function getOwner
+	 * @return ?string
 	 */
-	public function isPublic(): bool{
-		return $this->public;
+	public function getOwner(): ?string{
+		return $this->owner;
 	}
 
 	/**
-	 * Function isSlot
-	 * @return bool
+	 * Function getCreator
+	 * @return string
 	 */
-	public function isSlot(): bool{
-		return !$this->public;
+	public function getCreator(): string{
+		return $this->creator;
 	}
 }

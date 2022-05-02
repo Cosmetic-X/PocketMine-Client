@@ -2,7 +2,13 @@
 /*
  * Copyright (c) Jan Sohn
  * All rights reserved.
- * This plugin is under GPL license
+ * Only people with the explicit permission from Jan Sohn are allowed to modify, share or distribute this code.
+ *
+ * You are NOT allowed to do any kind of modification to this plugin.
+ * You are NOT allowed to share this plugin with others without the explicit permission from Jan Sohn.
+ * You are NOT allowed to run this plugin on your server as source code.
+ * You MUST acquire this plugin from official sources.
+ * You MUST run this plugin on your server as compiled .phar file from our releases.
  */
 declare(strict_types=1);
 namespace cosmeticx\command\subcommand;
@@ -10,7 +16,6 @@ use cosmeticx\command\SubCommand;
 use cosmeticx\CosmeticX;
 use Frago9876543210\EasyForms\elements\FunctionalButton;
 use Frago9876543210\EasyForms\forms\MenuForm;
-use Frago9876543210\EasyForms\forms\PageForm;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -36,7 +41,7 @@ class HelpSubCommand extends SubCommand{
 		$help = [];
 		foreach (CosmeticX::getInstance()->getCosmeticXCommand()->getSubCommands() as $_ => $subCommand) {
 			if (!$subCommand instanceof self) {
-				$help[] = "§a/" . CosmeticX::getInstance()->getCosmeticXCommand()->getName() . " {$subCommand->getName()}" . (count($subCommand->getAliases()) > 0 ? " | " . implode(" | ", $subCommand->getAliases()) : "");
+				$help[] = "§a/" . CosmeticX::getInstance()->getCosmeticXCommand()->getName() . " " . $subCommand->getName() . " | " . (count($subCommand->getAliases()) > 0 ? implode(" | ", $subCommand->getAliases()) . " | " : "") . $subCommand->getDescription();
 			}
 		}
 		if ($sender instanceof Player) {
