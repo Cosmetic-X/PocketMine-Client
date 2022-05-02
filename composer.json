@@ -21,7 +21,7 @@
         "ext-mbstring": "*"
     },
     "require-dev": {
-        "pocketmine/pocketmine-mp": "^4",
+        "pocketmine/pocketmine-mp": "^4.3.1",
         "xxarox/waterdogpe-login-extra-data-fix": "dev-main",
         "xxarox/plugin-security": "dev-main"
     },
