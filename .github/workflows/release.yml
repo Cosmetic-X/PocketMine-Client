@@ -5,7 +5,7 @@ on:
 
 jobs:
   release:
-    if: "startsWith(github.event.head_commit.message, 'Release ')"
+    #if: "startsWith(github.event.head_commit.message, 'Release ')"
     name: "Create stable release"
     runs-on: ubuntu-latest
 
