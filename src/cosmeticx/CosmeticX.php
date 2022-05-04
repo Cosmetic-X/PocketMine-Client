@@ -168,14 +168,13 @@ class CosmeticX extends PluginBase{
 		}
 		self::sendRequest(new ApiRequest(ApiRequest::$URI_CHECKOUT), function (array $data){
 			if (version_compare($data["lastest-client-version"], explode("+", $this->getDescription()->getVersion())[0]) == 1) {
-				$this->getLogger()->notice("New update available. https://cosmetic-x.de/downloads/PocketMine-Client/" . $data["lastest-client-version"]);
-				//TODO: auto update function
+				$this->getLogger()->warning("New update available. https://cosmetic-x.de/downloads/PocketMine-Client/" . $data["lastest-client-version"]);
 			}
 			$this->team = $data["team"] ?? "n/a";
 			$this->holder = $data["holder"] ?? "n/a";
-			if ($this->holder == "n/a" || $this->team == "n/a") {
-				$this->getLogger()->alert("Token is not valid.");
-			} else {
+
+			if ($this->holder == "n/a" || $this->team == "n/a") $this->getLogger()->alert("Token is not valid.");
+			else {
 				$this->getLogger()->notice("Token is from " . $this->team . " by " . $this->holder);
 				$this->loadCosmetics();
 			}
@@ -187,17 +186,15 @@ class CosmeticX extends PluginBase{
 	 * @return void
 	 */
 	private function loadCosmetics(): void{
-		$request = new ApiRequest("/cosmetics", [], true);
-		self::sendRequest($request, function (array $data){
-			var_dump($data);
+		self::sendRequest(new ApiRequest("/cosmetics", [], true), function (array $data){
 			foreach ($data as $obj) {
-				CosmeticManager::getInstance()->registerCosmetic((string)$obj["id"], $obj["name"], $obj["display_name"], $obj["owner"], $obj["creator"], (isset($obj["image"]) ? new Image($obj["image"], str_starts_with($obj["image"], "http") ? Image::TYPE_URL : Image::TYPE_PATH) : null));
+				CosmeticManager::getInstance()->registerCosmetic((string)$obj["id"], $obj["name"], $obj["owner"], $obj["display_name"], $obj["creator"], (isset($obj["image"]) ? new Image($obj["image"], str_starts_with($obj["image"], "http") ? Image::TYPE_URL : Image::TYPE_PATH) : null));
 			}
 			if (($cosmetics = count(CosmeticManager::getInstance()->getPublicCosmetics())) > 0) {
-				$this->getLogger()->debug("Loaded " . $cosmetics . " public-cosmetic" . ($cosmetics == 1 ? "" : "s"));
+				$this->getLogger()->notice("Loaded " . $cosmetics . " public cosmetic" . ($cosmetics == 1 ? "" : "s"));
 			}
 			if (($cosmetics = count(CosmeticManager::getInstance()->getServerCosmetics())) > 0) {
-				$this->getLogger()->debug("Loaded " . $cosmetics . " server-cosmetic" . ($cosmetics == 1 ? "" : "s"));
+				$this->getLogger()->notice("Loaded " . $cosmetics . " server cosmetic" . ($cosmetics == 1 ? "" : "s"));
 			}
 		});
 	}

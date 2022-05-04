@@ -43,7 +43,7 @@ final class CosmeticSession{
 	/** @var string[] */
 	private array $activeCosmetics = [];
 	private bool $premium;
-	private bool $enable_cosmetics = false;
+	private bool $can_use;
 	private bool $initialized = false;
 
 	/**
@@ -53,8 +53,9 @@ final class CosmeticSession{
 	 */
 	public function __construct(string $username, Skin $legacySkin){
 		$this->username = $username;
+		var_dump($legacySkin->getGeometryName(), array_keys(CosmeticX::$defaultGeometry));
+		$this->can_use = isset(CosmeticX::$defaultGeometry[$legacySkin->getGeometryName()]);
 		$this->legacySkin = Utils::fixSkinSizeForUs($legacySkin);
-		var_dump($legacySkin->getGeometryName(), $legacySkin->getGeometryData());
 		$this->premium = false;
 	}
 
@@ -77,9 +78,10 @@ final class CosmeticSession{
 			$this->activeCosmetics[] = $cosmetic->getId();
 			CosmeticX::sendRequest(new ApiRequest(ApiRequest::$URI_USER_ACTIVATE_COSMETIC, [
 				"id"           => $cosmetic->getId(),
-				"skinData"     => Utils::encodeSkinData($this->getHolder()->getSkin()->getSkinData()),
-				"geometry_data" => $this->getHolder()->getSkin()->getGeometryData(),
+				"skin_data"     => Utils::encodeSkinData($this->getHolder()->getSkin()->getSkinData()),
+				"geometry_data" => $this->getLegacySkin()->getGeometryData(),
 			], true), function (array $data): void{
+				var_dump("activate:", $data);
 				$this->sendSkin($data["buffer"], $data["geometry_data"]);
 			});
 		}
@@ -98,13 +100,13 @@ final class CosmeticSession{
 			CosmeticX::sendRequest(new ApiRequest(ApiRequest::$URI_USER_DEACTIVATE_COSMETIC, [
 				"id"           => $cosmetic->getId(),
 				"active"       => $this->activeCosmetics,
-				"skinData"     => Utils::encodeSkinData($this->legacySkin->getSkinData()),
+				"skin_data"     => Utils::encodeSkinData($this->legacySkin->getSkinData()),
 				"geometry_name" => $this->getHolder()->getSkin()->getGeometryName(),
 				"geometry_data" => $this->getHolder()->getSkin()->getGeometryData(),
 			], true), function (array $data): void{
-				if (!is_null($data["buffer"])) { //FIXME: remove this line if test is done
+				if (!is_null($data["buffer"] ?? null)) { //FIXME: remove this line if all tests are done
 					$this->sendSkin($data["buffer"], $data["geometry_data"]);
-				} //FIXME: remove this line if test is done
+				} //FIXME: remove this line if all tests are done
 			});
 		}
 	}
@@ -120,6 +122,7 @@ final class CosmeticSession{
 			//Utils::saveSkinData($this->getHolder()->getName(), Utils::decodeSkinData($buffer));
 			$this->getHolder()->setSkin(new Skin($this->getHolder()->getSkin()->getSkinId(), Utils::decodeSkinData($buffer), $this->getHolder()->getSkin()->getCapeData(), $this->getHolder()->getSkin()->getGeometryName(), $geometry_data ?? $this->getHolder()->getSkin()->getGeometryData()));
 			$this->getHolder()->sendSkin();
+			Utils::saveSkinData($this->getHolder()->getName(), Utils::decodeSkinData($buffer));
 		} catch (JsonException $e) {
 			CosmeticX::getInstance()->getLogger()->logException($e);
 		}
@@ -205,20 +208,29 @@ final class CosmeticSession{
 		}
 		$this->initialized = true;
 
-		CosmeticX::sendRequest(new ApiRequest(ApiRequest::$URI_USER_GET_COSMETICS . $playerInfo->getXuid(), [
-			"username" => $playerInfo->getUsername(),
-			"skinData" => Utils::encodeSkinData($legacySkin->getSkinData()),
-			"geometry_name" => $playerInfo->getSkin()->getGeometryName(),
-			"geometry_data" => $playerInfo->getSkin()->getGeometryData(),
-		],
-			true
-		), function (array $data) use ($playerInfo): void{
-			$this->setPremium($data["premium"] ?? false);
-			$this->setLegacySkin(new Skin($playerInfo->getSkin()->getSkinId(), Utils::decodeSkinData($data["legacySkinData"]), $playerInfo->getSkin()->getCapeData(), $data["geometry_name"] ?? $playerInfo->getSkin()->getGeometryName(), $data["geometry_data"] ?? $playerInfo->getSkin()->getGeometryData()));
-			$this->sendSkin($data["buffer"], $data["geometry_data"]);
-		});
+		var_dump($this->can_use);
+		if ($this->can_use) {
+			CosmeticX::sendRequest(new ApiRequest(ApiRequest::$URI_USER_GET_COSMETICS . $playerInfo->getXuid(), [
+				"username" => $playerInfo->getUsername(),
+				"xuid" => $playerInfo->getXuid(),
+				"skin_data" => Utils::encodeSkinData($legacySkin->getSkinData()),
+				"geometry_name" => $playerInfo->getSkin()->getGeometryName(),
+				"geometry_data" => $playerInfo->getSkin()->getGeometryData(),
+			],
+				true
+			), function (array $data) use ($playerInfo): void{
+				$this->setPremium($data["premium"] ?? false);
+				$this->setLegacySkin(new Skin($playerInfo->getSkin()->getSkinId(), Utils::decodeSkinData($data["legacySkinData"]), $playerInfo->getSkin()->getCapeData(), $data["geometry_name"] ?? $playerInfo->getSkin()->getGeometryName(), $data["geometry_data"] ?? $playerInfo->getSkin()->getGeometryData()));
+				$this->sendSkin($data["buffer"], $data["geometry_data"]);
+			});
+		}
 	}
 
+	/**
+	 * Function uninitialize
+	 * @param PlayerQuitEvent $event
+	 * @return void
+	 */
 	public function uninitialize(PlayerQuitEvent $event): void{
 		if (!$this->initialized) {
 			throw new RuntimeException("Session is not initialized");
@@ -226,7 +238,7 @@ final class CosmeticSession{
 		$this->initialized = false;
 		$playerInfo = $event->getPlayer()->getPlayerInfo();
 
-		if ($playerInfo instanceof XboxLivePlayerInfo) {
+		if ($playerInfo instanceof XboxLivePlayerInfo && $this->can_use) {
 			CosmeticX::sendRequest(new ApiRequest(ApiRequest::$URI_USER_GET_COSMETICS . $playerInfo->getXuid(), [
 				"active" => $this->getActiveCosmetics(),
 			], true), function (array $data) use ($event): void{
@@ -241,5 +253,13 @@ final class CosmeticSession{
 	 */
 	public function isInitialized(): bool{
 		return $this->initialized;
+	}
+
+	/**
+	 * Function isCanUse
+	 * @return bool
+	 */
+	public function canUse(): bool{
+		return $this->can_use;
 	}
 }
