@@ -1,4 +1,5 @@
 {
+	"format_version": "1.12.0",
 	"geometry.humanoid": {
 		"visible_bounds_width": 1,
 		"visible_bounds_height": 1,

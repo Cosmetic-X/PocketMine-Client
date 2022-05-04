@@ -190,9 +190,8 @@ class Utils{
 	 */
 	static function fixSkinSizeForUs(Skin $skin): Skin{
 		// BLAME: MOJANG BEGIN
-		var_dump($skin->getGeometryData());
 		if ($skin->getGeometryData() !== "null") {
-			var_dump("format_version: " . Utils::json_decode($skin->getGeometryData(), true)["format_version"] ?? null);
+			var_dump("format_version: " . (Utils::json_decode($skin->getGeometryData(), true)["format_version"] ?? null));
 		}
 		if (isset(CosmeticX::$defaultGeometry[$skin->getGeometryName()])) {
 			$geometryData = json_encode(CosmeticX::$defaultGeometry[$skin->getGeometryName()]);
