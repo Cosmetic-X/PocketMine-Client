@@ -4,33 +4,43 @@
     "minimum-stability": "dev",
     "config": {
         "github-oauth": {
-            "github.com": "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"
+            "github.com": "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"
         }
     },
     "repositories": [
         {
             "type": "vcs",
             "url": "git@github.com:xxAROX/plugin-security.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:xxAROX/utils.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:NexusMCWasTaken/VPacks.git"
         }
     ],
     "require": {
+        "xxarox/forms": "^1.1.3",
+        "xxarox/utils": "dev-main",
+        "its-vezdehod/vpacks": "dev-master",
         "php": "^8.0",
         "ext-curl": "*",
-		"ext-yaml": "*",
-		"ext-gd": "*",
+        "ext-yaml": "*",
+        "ext-gd": "*",
         "ext-mbstring": "*"
     },
     "require-dev": {
-        "pocketmine/pocketmine-mp": "^4.3.1",
-        "xxarox/waterdogpe-login-extra-data-fix": "dev-main",
-        "xxarox/plugin-security": "dev-main"
+        "xxarox/plugin-security": "dev-main",
+        "pocketmine/pocketmine-mp": "^4.9"
     },
     "autoload": {
         "psr-4": {
-            "": "src/"
+            "cosmeticx\\": "src/"
         },
         "files": [
-            "src/cosmeticx/functions.php"
+            "src/functions.php"
         ]
     },
     "authors": [

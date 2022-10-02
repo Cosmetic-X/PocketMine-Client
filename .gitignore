@@ -2,5 +2,6 @@
 .idea/workspace.xml
 .idea/deployment.xml
 /out/
+/resources/Default-Pack/
 
 /vendor/

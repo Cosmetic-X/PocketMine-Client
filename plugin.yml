@@ -3,5 +3,18 @@ authors: ["xxAROX", "BauboLP"]
 website: "https://cosmetic-x.de"
 version: "1.0.0"
 description: "Cosmetic-X client for PocketMine-MP"
+
 api: [ "4.0.0" ]
 main: cosmeticx\CosmeticX
+
+depend:
+  - "VPacks"
+
+permissions:
+  "cosmetic-x.command":
+    "cosmetic-x.command.permission":
+      description: "Shows description"
+    "cosmetic-x.command.encode":
+      description: "Encode skin"
+    "cosmetic-x.command.reload":
+      description: "Reload"

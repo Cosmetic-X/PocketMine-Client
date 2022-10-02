@@ -8,47 +8,25 @@ declare(strict_types=1);
 set_time_limit(0);
 ini_set("memory_limit", "-1");
 $enable_version_suffix = isset(getopt("vs")["vs"]);
-$secure = getenv("COMPUTERNAME") !== "JANPC";
-$buildOnLocalServer = true;
+$secure = getenv("COMPUTERNAME") !== "JANPC" && true;
+$from = getcwd() . DIRECTORY_SEPARATOR;
+$description = yaml_parse_file($from . "plugin.yml");
+$localServerPath = "C:/Users/" . getenv("USERNAME") . "/Desktop/pmmp" . (is_array($description["api"]) ? explode(".", $description["api"][0])[0] : (is_string($description["api"]) ? explode(".", $description["api"])[0] : "???")) . "/"; // string|null
 $packages = [
+	"xxarox/forms" => ["paths" => [["src" => "src/xxAROX/forms"]], "encode" => true],
+	"xxarox/utils" => ["paths" => [["src/addons" => "src/xxAROX/utils/addons"]], "encode" => true],
 	//EXAMPLE: "xxarox/web-server": ["paths" => ["src/","README.md"], "encode" => true]
 	//"xxarox/waterdogpe-login-extra-data-fix" => ["paths" => ["src/"], "encode" => true]
 ];
-$loader = include_once __DIR__ . "/vendor/autoload.php";
 $startTime = microtime(true);
-$from = getcwd() . DIRECTORY_SEPARATOR;
-$description = yaml_parse_file($from . "plugin.yml");
 $to = __DIR__ . DIRECTORY_SEPARATOR . "out" . DIRECTORY_SEPARATOR . $description["name"] . DIRECTORY_SEPARATOR;
 $outputPath = $from . "out" . DIRECTORY_SEPARATOR . $description["name"] . ($enable_version_suffix ? "_v" . $description["version"] : "");
 echo "[INFO]: Starting.." . PHP_EOL;
 @mkdir($to, 0777, true);
 cleanDirectory($to);
 
-foreach ($packages as $vendor => $obj) {
-	if (str_ends_with($vendor, "/")) {
-		$vendor = substr($vendor, 0, -1);
-	}
-	foreach ($obj["paths"] as $path) {
-		if (is_dir($from . "vendor/$vendor")) {
-			$package = json_decode(file_get_contents($to . "vendor/{$vendor}/package.json"), true);
-			foreach ($package["autoload"] ?? [] as $type => $obj) {
-				if (isset($package["autoload"][$type]) && is_string($package["autoload"][$type])) {
-					$package["autoload"][$type] = [$package["autoload"][$type]];
-					foreach ($package["autoload"][$type] as $k => $file) {
-						copyDirectory($from . "vendor/$vendor/$path/$file", "$vendor/$path/$file");
-						$package["autoload"][$type][$k] = "$vendor/$path/$file";
-					}
-				}
-			}
-			file_put_contents($to . "vendor/{$vendor}/package.json", json_encode($package, JSON_PRETTY_PRINT));
-		} else {
-			throw new ErrorException("Package '$vendor' is not installed.");
-		}
-	}
-}
-echo "[INFO]: Loaded " . count($packages) . " packages" . PHP_EOL;
 if (is_dir($from . "src")) {
-	copyDirectory($from . "src", $to . "src");
+	copyDirectory($from . "src", $to . "src/cosmeticx");
 }
 if (is_file($from . "LICENSE")) {
 	file_put_contents($to . "LICENSE", file_get_contents($from . "LICENSE"));
@@ -57,23 +35,42 @@ if (is_file($from . "README.md")) {
 	file_put_contents($to . "README.md", file_get_contents($from . "README.md"));
 }
 if (is_dir($from . "resources")) {
-	copyDirectory($from . "resources", $to . "resources");
+	copyDirectory($from . "resources", $to . "resources", [$from . "resources/Default-Pack",$from . "resources/Resource-Pack"]);
+	//fetchResourcePack();
 }
-yaml_emit_file($to . "plugin.yml", $description);
+
 
 $excluded = [];
 if (count($packages) > 0) {
-	passthru("composer  --no-dev --no-interaction dump-autoload -o", $result_code);
-	if ($result_code != 0) {
-		throw new ErrorException("Error while updated autoloader.");
-	}
+	passthru("composer  --no-interaction dump-autoload -o", $result_code);
+	if ($result_code != 0) throw new ErrorException("Error while updated autoloader.");
 	foreach ($packages as $vendor => $obj) {
-		if ($obj["encode"] ?? false) {
-			$excluded[] = $vendor . "/";
+		if ($obj["encode"] ?? false) $excluded[] = $vendor . "/";
+	}
+}
+$loader = include_once __DIR__ . "/vendor/autoload.php";
+// include all packages
+foreach ($packages as $vendor => $obj) {
+	if (str_ends_with($vendor, "/")) $vendor = substr($vendor, 0, -1);
+	foreach ($obj["paths"] as $paths) {
+		var_dump($paths);
+		foreach ($paths as $from2 => $to2) {
+			if (is_dir($from . "vendor/$vendor")) {
+				var_dump($from . "vendor/$vendor/$from2" . " => " . $to . $to2);
+				copyDirectory($from . "vendor/$vendor/$from2", $to . $to2, [], str_ends_with("forms", $vendor));
+				var_dump("DONE");
+			}
+			else {
+				var_dump("BAD");
+				throw new RuntimeException("Package '$vendor' is not installed.");
+			}
 		}
 	}
 }
-
+echo "[INFO]: Included " . count($packages) . " package" . (count($packages) == 1 ? "" : "s") . PHP_EOL;
+//checkForErrors($from . "src/");
+yaml_emit_file($to . "plugin.yml", $description);
+var_dump($secure);
 if ($secure) {
 	echo "[INFO]: Encoding plugin.." . PHP_EOL;
 	if (getenv("USERNAME") !== false) {
@@ -82,19 +79,15 @@ if ($secure) {
 	}
 	echo "[INFO]: Encoding done!" . PHP_EOL;
 }
-
 if (is_dir($to . "output/")) {
 	$to = $to . "output/";
 }
 generatePhar($outputPath, $to);
-
-if ($buildOnLocalServer && is_dir("C:/Users/" . getenv("USERNAME") . "/Desktop/pmmp" . (is_array($description["api"]) ? explode(".", $description["api"][0])[0] : (is_string($description["api"]) ? explode(".", $description["api"])[0] : "???")) . "/plugins")) {
-	echo "[INFO]: Building on " . PHP_EOL;
-	$outputPath = "C:/Users/" . getenv("USERNAME") . "/Desktop/pmmp" . (is_array($description["api"])
-			? explode(".", $description["api"][0])[0]
-			: (is_string($description["api"]) ? explode(".", $description["api"])[0]
-				: "???")) . "/plugins" . DIRECTORY_SEPARATOR . $description["name"] . ($enable_version_suffix ? "_v" . $description["version"] : "");
-	generatePhar($outputPath, $to);
+if (!empty($localServerPath) && is_dir($localServerPath . "/plugins")) {
+	echo "[INFO]: Compiling.." . PHP_EOL;
+	generatePhar($localServerPath . "/plugins/" . $description["name"] . ($enable_version_suffix ? "_v" . $description["version"] : ""), $to);
+	echo "[INFO]: Starting server.." . PHP_EOL;
+	startServer();
 }
 /**
  * Function copyDirectory
@@ -103,13 +96,15 @@ if ($buildOnLocalServer && is_dir("C:/Users/" . getenv("USERNAME") . "/Desktop/p
  * @param array $ignoredFiles
  * @return void
  */
-function copyDirectory(string $from, string $to, array $ignoredFiles = []): void{
+function copyDirectory(string $from, string $to, array $ignoredFiles = [], $log = false): void{
 	@mkdir($to, 0777, true);
+	if ($log) var_dump($from);
 	if (is_file($from)) {
 		$files = [$from];
 	} else {
 		$ignoredFiles = array_map(fn(string $path) => str_replace("/", "\\", $path), $ignoredFiles);
-		$files = new RecursiveIteratorIterator(new RecursiveCallbackFilterIterator(new RecursiveDirectoryIterator($from, FilesystemIterator::SKIP_DOTS), function (SplFileInfo $fileInfo, $key, $iterator) use ($from, $ignoredFiles): bool{
+		$files = new RecursiveIteratorIterator(new RecursiveCallbackFilterIterator(new RecursiveDirectoryIterator($from, FilesystemIterator::SKIP_DOTS), function (SplFileInfo $fileInfo, $key, $iterator) use ($from, $ignoredFiles, $log): bool{
+			if ($log) var_dump($fileInfo, $key);
 			if (!empty($ignoredFiles)) {
 				$path = str_replace("/", "\\", $fileInfo->getPathname());
 				foreach ($ignoredFiles as $ignoredFile) {
@@ -175,4 +170,64 @@ function generatePhar(string $outputPath, string $to): void{
 	$phar->setSignatureAlgorithm(Phar::SHA512, "bdc70a4aeec173d80eae3f853019fda7270f32f78fc2590d7082a888b76365e923efcdcba6117a977c17a76f82c79a6dcbda1dfc097b6380839087a3d54dbb7f");
 	$phar->compressFiles(Phar::GZ);
 	echo "[INFO]: Built in " . round(microtime(true) - $startTime, 3) . " seconds! Output path: {$outputPath}.phar" . PHP_EOL;
+}
+
+function fetchResourcePack() {
+	echo "[INFO]: Generating resource pack" . PHP_EOL;
+	$location = __DIR__ . "/resources/Resource-Pack.zip";
+	if (file_exists($location)) unlink($location);
+	if (!file_exists(__DIR__ . "/out/.version")) file_put_contents(__DIR__ . "/out/.version", "0.0.0");
+	$currentVersion = (string)file_get_contents(__DIR__ . "/out/.version");
+	//$newVersion = implode(".", json_decode(file_get_contents(""), true)["header"]["version"] ?? ["null"]);
+
+	if ($currentVersion !== $newVersion) {
+		echo "[INFO]: New version found! Downloading..." . PHP_EOL;
+		$curl = curl_init();
+		curl_setopt_array($curl, [
+			CURLOPT_URL => "https://api.github.com/repos/Cosmetic-X/main/releases/tags/{$newVersion}",
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HTTPHEADER => [
+				"User-Agent: Cosmetix Resource Pack Generator",
+				"Accept: application/vnd.github.v3+json",
+				"Authorization: token " . json_decode(file_get_contents(__DIR__ . "/composer.json")["config"]["github-oauth"]["github.com"], true)["header"]["token"]
+			]
+		]);
+		$release = json_decode(curl_exec($curl), true);
+		var_dump($release);
+		file_put_contents(__DIR__ . "/out/.version", $newVersion);
+		file_put_contents($location, $zipFileContents="");
+	}
+}
+
+
+/**
+ * Function startServer
+ * @return void
+ */
+function startServer(): void{
+	global $localServerPath;
+	if (!is_dir($localServerPath)) return;
+	if (!is_file($localServerPath . "/start.bat")) return;
+	popen("start $localServerPath/start.bat", "r");
+	exit;
+}
+
+function checkForErrors(string $directory): void{
+	if (is_dir($directory)) {
+		$scan = scandir($directory);
+		unset($scan[0], $scan[1]); //unset . and ..
+		foreach($scan as $file) {
+			if (is_dir($directory."/".$file)) {
+				checkForErrors($directory."/".$file);
+			} else {
+				if(str_contains($file, '.php')) {
+					try {
+						require_once($directory."/".$file);
+					} catch (Throwable $throwable) {
+						echo \pocketmine\utils\Terminal::$COLOR_RED . \pocketmine\utils\Terminal::$FORMAT_BOLD . "[ERROR]: " . $throwable->getMessage() . "\n";
+					}
+				}
+			}
+		}
+	}
 }

@@ -1,0 +1,3 @@
+[submodule "resources/Resource-Pack"]
+	path = resources/Resource-Pack
+	url = https://github.com/Cosmetic-X/Resource-Pack.git
