@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5069ded1e71bc81d7815bd30cd235aa3",
+    "content-hash": "6df5bff9ef18c8694c2429091d34cb41",
     "packages": [
         {
             "name": "catfan/medoo",
@@ -84,22 +84,24 @@
         },
         {
             "name": "its-vezdehod/vpacks",
-            "version": "dev-master",
+            "version": "dev-development",
             "source": {
                 "type": "git",
                 "url": "https://github.com/NexusMCWasTaken/VPacks.git",
-                "reference": "76cecadbea6f9669da881f355ff0d470d29877cb"
+                "reference": "fa146ff9272fa58e8e62cf08ae6d855cb0ec4381"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/NexusMCWasTaken/VPacks/zipball/76cecadbea6f9669da881f355ff0d470d29877cb",
-                "reference": "76cecadbea6f9669da881f355ff0d470d29877cb",
+                "url": "https://api.github.com/repos/NexusMCWasTaken/VPacks/zipball/fa146ff9272fa58e8e62cf08ae6d855cb0ec4381",
+                "reference": "fa146ff9272fa58e8e62cf08ae6d855cb0ec4381",
                 "shasum": ""
+            },
+            "require": {
+                "ext-zip": "*"
             },
             "require-dev": {
                 "pocketmine/pocketmine-mp": "dev-stable"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -107,9 +109,9 @@
                 }
             },
             "support": {
-                "source": "https://github.com/NexusMCWasTaken/VPacks/tree/master"
+                "source": "https://github.com/NexusMCWasTaken/VPacks/tree/dev"
             },
-            "time": "2022-10-02T14:55:20+00:00"
+            "time": "2022-10-03T09:26:06+00:00"
         },
         {
             "name": "xxarox/forms",

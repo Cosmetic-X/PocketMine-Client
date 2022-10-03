@@ -28,6 +28,8 @@ use xxAROX\forms\elements\Image;
 use xxAROX\forms\types\MenuForm;
 use xxAROX\utils\addons\commando\SubCommando;
 
+use function pocketmine\build\generate_known_translation_apis\functionify;
+
 
 /**
  * Class TestSubCommand
@@ -55,9 +57,10 @@ class TestSubCommand extends SubCommando{
 	public function onRun(Player|CommandSender $sender, string $aliasUsed, array $args): void{
 		if (!$sender instanceof Player) return;
 		$sender->sendForm(ResourcePackManager::getInstance()->getCategoriesDecorator()->decorate(new MenuForm(
-			"§cC o s m e t i x  -  X",
+			"§dC o s m e t i x  -  X",
 			"",
 			[
+				new Button("§cClose"),
 				new Button("Hat", fn (Player $player) => $player->sendForm(ResourcePackManager::getInstance()->getCategoryDecorator()->decorate(new CategoryForm($player, Category::HAT)))),
 				new Button("Head", fn (Player $player) => $player->sendForm(ResourcePackManager::getInstance()->getCategoryDecorator()->decorate(new CategoryForm($player, Category::HEAD)))),
 				new Button("Cape", fn (Player $player) => $player->sendForm(ResourcePackManager::getInstance()->getCategoryDecorator()->decorate(new CategoryForm($player, Category::CAPE)))),
@@ -65,7 +68,13 @@ class TestSubCommand extends SubCommando{
 				new Button("Wings", fn (Player $player) => $player->sendForm(ResourcePackManager::getInstance()->getCategoryDecorator()->decorate(new CategoryForm($player, Category::WINGS)))),
 				new Button("Shoes", fn (Player $player) => $player->sendForm(ResourcePackManager::getInstance()->getCategoryDecorator()->decorate(new CategoryForm($player, Category::SHOES)))),
 			],
-			fn (Player $player) => $player->sendMessage("§cCLOSED")
+			function (Player $player) use ($sender){
+				$session = CosmeticManager::getInstance()->getSession($sender->getName());
+				if (is_null($session)) return;
+				$session->deactivateCosmetics();
+				$player->setSkin($session->getLegacySkin());
+				$player->sendSkin();
+			}
 		)));
 
 		//$sender->sendForm(new MenuForm("<cosmeticForm>"));

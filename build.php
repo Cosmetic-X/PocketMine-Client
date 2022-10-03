@@ -15,6 +15,7 @@ $localServerPath = "C:/Users/" . getenv("USERNAME") . "/Desktop/pmmp" . (is_arra
 $packages = [
 	"xxarox/forms" => ["paths" => [["src" => "src/xxAROX/forms"]], "encode" => true],
 	"xxarox/utils" => ["paths" => [["src/addons" => "src/xxAROX/utils/addons"]], "encode" => true],
+	"its-vezdehod/vpacks" => ["paths" => [["src" => "src/vezdehod/packs"]], "encode" => true],
 	//EXAMPLE: "xxarox/web-server": ["paths" => ["src/","README.md"], "encode" => true]
 	//"xxarox/waterdogpe-login-extra-data-fix" => ["paths" => ["src/"], "encode" => true]
 ];

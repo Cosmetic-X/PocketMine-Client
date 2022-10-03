@@ -31,5 +31,7 @@ setUserPresence($presences[array_rand($presences)]);
 DiscordRichPresence::clear($player);
 ```
 
+We are using <a href="https://github.com/vezdehod">vezdehod</a> / <a href="https://github.com/vezdehod/VPacks">VPacks</a>
+
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/cosmeticx)
